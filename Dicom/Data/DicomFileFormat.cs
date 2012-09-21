@@ -376,5 +376,27 @@ namespace Dicom.Data
                 }
             }
         }
+
+        /// <summary>
+        /// Saves a DICOM file to a MemoryStream
+        /// </summary>
+        /// <param name="options">DICOM write options.</param>
+        /// <returns></returns>
+        public MemoryStream Save(DicomWriteOptions options)
+        {
+            MemoryStream ms = new MemoryStream();
+            ms.Seek(128, SeekOrigin.Begin);
+            ms.WriteByte((byte)'D');
+            ms.WriteByte((byte)'I');
+            ms.WriteByte((byte)'C');
+            ms.WriteByte((byte)'M');
+
+            DicomStreamWriter dsw = new DicomStreamWriter(ms);
+            dsw.Write(_metainfo, options | DicomWriteOptions.CalculateGroupLengths);
+            if (_dataset != null)
+                dsw.Write(_dataset, options);
+
+            return ms;
+        }
     }
 }
