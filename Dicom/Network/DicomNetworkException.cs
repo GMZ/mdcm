@@ -25,8 +25,11 @@ using System.Text;
 
 namespace Dicom.Network
 {
-	public class DicomNetworkException : Exception {
-		public DicomNetworkException(String s) : base(s) {
-		}
-	}
+    public class DicomNetworkException : Exception
+    {
+        public DicomNetworkException(String s)
+            : base(s)
+        {
+        }
+    }
 }

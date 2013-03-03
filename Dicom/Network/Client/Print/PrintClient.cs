@@ -123,9 +123,9 @@ namespace Dicom.Network.Client
         #region Public Constructor
         public PrintClient()
         {
-			LogID = "Print SCU";
-			CallingAE = "PRINT_SCU";
-			CalledAE = "PRINT_SCP";
+            LogID = "Print SCU";
+            CallingAE = "PRINT_SCU";
+            CalledAE = "PRINT_SCP";
 
             _queryPrinterStatus = true;
 
@@ -137,8 +137,8 @@ namespace Dicom.Network.Client
             _files = new List<String>();
             _pendingFilmBoxResponses = new List<DcmFilmBox>();
             _pendingImageBoxResponses = new List<DcmImageBox>();
-		}
-		#endregion
+        }
+        #endregion
 
         #region Public Properties
         public PrintNGetPrinterStatusResponseDelegate OnPrintGetPrinterStatusResponse;
@@ -602,9 +602,9 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
-// ReSharper disable PossibleUnintendedReferenceComparison
+                // ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmSessionSOPClass)
-// ReSharper restore PossibleUnintendedReferenceComparison
+                // ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -644,9 +644,9 @@ namespace Dicom.Network.Client
                     }
                 }
 
-// ReSharper disable PossibleUnintendedReferenceComparison
+                // ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmBoxSOPClass)
-// ReSharper restore PossibleUnintendedReferenceComparison
+                // ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -688,7 +688,7 @@ namespace Dicom.Network.Client
                             }
                             return;
                         }
-                    }               
+                    }
                 }
             }
 
@@ -700,10 +700,10 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
-// ReSharper disable PossibleUnintendedReferenceComparison
+                // ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicColorImageBoxSOPClass ||
                     affectedClass == DicomUID.BasicGrayscaleImageBoxSOPClass)
-// ReSharper restore PossibleUnintendedReferenceComparison
+                // ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -714,7 +714,7 @@ namespace Dicom.Network.Client
                             if (_pendingImageBoxResponses.Count == 0)
                             {
                                 byte pcid = Associate.FindAbstractSyntax(DicomUID.PrinterSOPClass);
-                                SendNActionRequest(pcid, NextMessageID(), DicomUID.BasicFilmSessionSOPClass, _filmSession.SOPInstanceUID, 0x0001, null);                               
+                                SendNActionRequest(pcid, NextMessageID(), DicomUID.BasicFilmSessionSOPClass, _filmSession.SOPInstanceUID, 0x0001, null);
                             }
                             return;
                         }
@@ -730,9 +730,9 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
-// ReSharper disable PossibleUnintendedReferenceComparison
+                // ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmSessionSOPClass)
-// ReSharper restore PossibleUnintendedReferenceComparison
+                // ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -745,7 +745,7 @@ namespace Dicom.Network.Client
                         }
                         return;
                     }
-                    
+
                 }
             }
 
@@ -756,9 +756,9 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
-// ReSharper disable PossibleUnintendedReferenceComparison
+                // ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmBoxSOPClass)
-// ReSharper restore PossibleUnintendedReferenceComparison
+                // ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -776,9 +776,9 @@ namespace Dicom.Network.Client
                     }
                 }
 
-// ReSharper disable PossibleUnintendedReferenceComparison
+                // ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmSessionSOPClass)
-// ReSharper restore PossibleUnintendedReferenceComparison
+                // ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {

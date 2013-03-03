@@ -26,41 +26,48 @@ using System.Text;
 using Dicom.Data;
 using Dicom.Network;
 
-namespace Dicom.Network.Client {
-	public sealed class CEchoClient : DcmClientBase {
-		#region Public Constructor
-		public CEchoClient() : base() {
-			CallingAE = "ECHO_SCU";
-			CalledAE = "ECHO_SCP";
-		}
-		#endregion
+namespace Dicom.Network.Client
+{
+    public sealed class CEchoClient : DcmClientBase
+    {
+        #region Public Constructor
+        public CEchoClient()
+            : base()
+        {
+            CallingAE = "ECHO_SCU";
+            CalledAE = "ECHO_SCP";
+        }
+        #endregion
 
-		public DcmResponseCallback OnCEchoResponse;
+        public DcmResponseCallback OnCEchoResponse;
 
-		#region Protected Overrides
-		protected override void OnConnected() {
-			DcmAssociate associate = new DcmAssociate();
+        #region Protected Overrides
+        protected override void OnConnected()
+        {
+            DcmAssociate associate = new DcmAssociate();
 
-			byte pcid = associate.AddPresentationContext(DicomUID.VerificationSOPClass);
-			associate.AddTransferSyntax(pcid, DicomTransferSyntax.ImplicitVRLittleEndian);
+            byte pcid = associate.AddPresentationContext(DicomUID.VerificationSOPClass);
+            associate.AddTransferSyntax(pcid, DicomTransferSyntax.ImplicitVRLittleEndian);
 
-			associate.CalledAE = CalledAE;
-			associate.CallingAE = CallingAE;
-			associate.MaximumPduLength = MaxPduSize;
+            associate.CalledAE = CalledAE;
+            associate.CallingAE = CallingAE;
+            associate.MaximumPduLength = MaxPduSize;
 
-			SendAssociateRequest(associate);
-		}
+            SendAssociateRequest(associate);
+        }
 
-		protected override void OnReceiveAssociateAccept(DcmAssociate association) {
-			byte pcid = association.FindAbstractSyntax(DicomUID.VerificationSOPClass);
-			SendCEchoRequest(pcid, NextMessageID(), Priority);
-		}
+        protected override void OnReceiveAssociateAccept(DcmAssociate association)
+        {
+            byte pcid = association.FindAbstractSyntax(DicomUID.VerificationSOPClass);
+            SendCEchoRequest(pcid, NextMessageID(), Priority);
+        }
 
-		protected override void OnReceiveCEchoResponse(byte presentationID, ushort messageID, DcmStatus status) {
-			if (OnCEchoResponse != null)
-				OnCEchoResponse(presentationID, messageID, status);
-			SendReleaseRequest();
-		}
-		#endregion
-	}
+        protected override void OnReceiveCEchoResponse(byte presentationID, ushort messageID, DcmStatus status)
+        {
+            if (OnCEchoResponse != null)
+                OnCEchoResponse(presentationID, messageID, status);
+            SendReleaseRequest();
+        }
+        #endregion
+    }
 }

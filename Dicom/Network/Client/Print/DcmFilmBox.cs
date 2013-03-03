@@ -448,7 +448,7 @@ namespace Dicom.Network.Client
 
             var box = new DcmImageBox(this, classUid, instUid)
                                   {
-                                      ImageBoxPosition = (ushort) (_boxes.Count + 1)
+                                      ImageBoxPosition = (ushort)(_boxes.Count + 1)
                                   };
             _boxes.Add(box);
 

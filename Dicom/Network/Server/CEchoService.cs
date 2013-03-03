@@ -25,35 +25,48 @@ using System.Text;
 
 using Dicom.Data;
 
-namespace Dicom.Network.Server {
-	public class CEchoService : DcmServiceBase {
-		public CEchoService() : base() {
-			LogID = "C-Echo SCP";
-		}
+namespace Dicom.Network.Server
+{
+    public class CEchoService : DcmServiceBase
+    {
+        public CEchoService()
+            : base()
+        {
+            LogID = "C-Echo SCP";
+        }
 
-		protected override void OnReceiveAssociateRequest(DcmAssociate association) {
-			association.NegotiateAsyncOps = false;
-			LogID = association.CallingAE;
-			foreach (DcmPresContext pc in association.GetPresentationContexts()) {
-				if (pc.AbstractSyntax == DicomUID.VerificationSOPClass) {
-					if (pc.HasTransfer(DicomTransferSyntax.ImplicitVRLittleEndian)) {
-						pc.SetResult(DcmPresContextResult.Accept, DicomTransferSyntax.ImplicitVRLittleEndian);
-					}
-					else if (pc.HasTransfer(DicomTransferSyntax.ExplicitVRLittleEndian)) {
-						pc.SetResult(DcmPresContextResult.Accept, DicomTransferSyntax.ExplicitVRLittleEndian);
-					}
-					else {
-						pc.SetResult(DcmPresContextResult.RejectTransferSyntaxesNotSupported);
-					}
-				} else {
-					pc.SetResult(DcmPresContextResult.RejectAbstractSyntaxNotSupported);
-				}
-			}
-			SendAssociateAccept(association);
-		}
+        protected override void OnReceiveAssociateRequest(DcmAssociate association)
+        {
+            association.NegotiateAsyncOps = false;
+            LogID = association.CallingAE;
+            foreach (DcmPresContext pc in association.GetPresentationContexts())
+            {
+                if (pc.AbstractSyntax == DicomUID.VerificationSOPClass)
+                {
+                    if (pc.HasTransfer(DicomTransferSyntax.ImplicitVRLittleEndian))
+                    {
+                        pc.SetResult(DcmPresContextResult.Accept, DicomTransferSyntax.ImplicitVRLittleEndian);
+                    }
+                    else if (pc.HasTransfer(DicomTransferSyntax.ExplicitVRLittleEndian))
+                    {
+                        pc.SetResult(DcmPresContextResult.Accept, DicomTransferSyntax.ExplicitVRLittleEndian);
+                    }
+                    else
+                    {
+                        pc.SetResult(DcmPresContextResult.RejectTransferSyntaxesNotSupported);
+                    }
+                }
+                else
+                {
+                    pc.SetResult(DcmPresContextResult.RejectAbstractSyntaxNotSupported);
+                }
+            }
+            SendAssociateAccept(association);
+        }
 
-		protected override void OnReceiveCEchoRequest(byte presentationID, ushort messageID, DcmPriority priority) {
-			SendCEchoResponse(presentationID, messageID, DcmStatus.Success);
-		}
-	}
+        protected override void OnReceiveCEchoRequest(byte presentationID, ushort messageID, DcmPriority priority)
+        {
+            SendCEchoResponse(presentationID, messageID, DcmStatus.Success);
+        }
+    }
 }

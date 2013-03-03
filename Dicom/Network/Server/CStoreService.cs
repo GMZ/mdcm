@@ -26,82 +26,97 @@ using System.Text;
 
 using Dicom.Data;
 
-namespace Dicom.Network.Server {
-	public delegate DcmStatus DcmCStoreEchoCallback(CStoreService client, byte presentationID, ushort messageID, DcmPriority priority);
-	public delegate void DcmCStoreDimseCallback(CStoreService client, byte presentationID, DcmCommand command, DcmDataset dataset, DcmDimseProgress progress);
-	public delegate DcmStatus DcmCStoreCallback(CStoreService client, byte presentationID, ushort messageID, DicomUID affectedInstance, 
-										DcmPriority priority, string moveAE, ushort moveMessageID, DcmDataset dataset, string fileName);
-	public delegate DcmAssociateResult DcmAssociationCallback(CStoreService client, DcmAssociate association);
+namespace Dicom.Network.Server
+{
+    public delegate DcmStatus DcmCStoreEchoCallback(CStoreService client, byte presentationID, ushort messageID, DcmPriority priority);
+    public delegate void DcmCStoreDimseCallback(CStoreService client, byte presentationID, DcmCommand command, DcmDataset dataset, DcmDimseProgress progress);
+    public delegate DcmStatus DcmCStoreCallback(CStoreService client, byte presentationID, ushort messageID, DicomUID affectedInstance,
+                                        DcmPriority priority, string moveAE, ushort moveMessageID, DcmDataset dataset, string fileName);
+    public delegate DcmAssociateResult DcmAssociationCallback(CStoreService client, DcmAssociate association);
 
-	public class CStoreService : DcmServiceBase {
-		public DcmCStoreEchoCallback OnCEchoRequest;
-		public DcmCStoreCallback OnCStoreRequest;
-		public DcmCStoreDimseCallback OnCStoreRequestBegin;
-		public DcmCStoreDimseCallback OnCStoreRequestProgress;
-		public DcmAssociationCallback OnAssociationRequest;
+    public class CStoreService : DcmServiceBase
+    {
+        public DcmCStoreEchoCallback OnCEchoRequest;
+        public DcmCStoreCallback OnCStoreRequest;
+        public DcmCStoreDimseCallback OnCStoreRequestBegin;
+        public DcmCStoreDimseCallback OnCStoreRequestProgress;
+        public DcmAssociationCallback OnAssociationRequest;
 
-		public CStoreService() : base() {
-			UseFileBuffer = true;
-			LogID = "C-Store SCP";
-		}
+        public CStoreService()
+            : base()
+        {
+            UseFileBuffer = true;
+            LogID = "C-Store SCP";
+        }
 
-		protected override void OnReceiveAssociateRequest(DcmAssociate association) {
-			association.NegotiateAsyncOps = false;
-			LogID = association.CallingAE;
-			if (OnAssociationRequest != null) {
-				DcmAssociateResult result = OnAssociationRequest(this, association);
-				if (result == DcmAssociateResult.RejectCalledAE) {
-					SendAssociateReject(DcmRejectResult.Permanent, DcmRejectSource.ServiceUser, DcmRejectReason.CalledAENotRecognized);
-					return;
-				}
-				else if (result == DcmAssociateResult.RejectCallingAE) {
-					SendAssociateReject(DcmRejectResult.Permanent, DcmRejectSource.ServiceUser, DcmRejectReason.CallingAENotRecognized);
-					return;
-				}
-				else if (result == DcmAssociateResult.RejectNoReason) {
-					SendAssociateReject(DcmRejectResult.Permanent, DcmRejectSource.ServiceUser, DcmRejectReason.NoReasonGiven);
-					return;
-				}
-				else {
-					foreach (DcmPresContext pc in association.GetPresentationContexts()) {
-						if (pc.Result == DcmPresContextResult.Proposed)
-							pc.SetResult(DcmPresContextResult.RejectNoReason);
-					}
-				}
-			}
-			else {
-				DcmAssociateProfile profile = DcmAssociateProfile.Find(association, true);
-				profile.Apply(association);
-			}
-			SendAssociateAccept(association);
-		}
+        protected override void OnReceiveAssociateRequest(DcmAssociate association)
+        {
+            association.NegotiateAsyncOps = false;
+            LogID = association.CallingAE;
+            if (OnAssociationRequest != null)
+            {
+                DcmAssociateResult result = OnAssociationRequest(this, association);
+                if (result == DcmAssociateResult.RejectCalledAE)
+                {
+                    SendAssociateReject(DcmRejectResult.Permanent, DcmRejectSource.ServiceUser, DcmRejectReason.CalledAENotRecognized);
+                    return;
+                }
+                else if (result == DcmAssociateResult.RejectCallingAE)
+                {
+                    SendAssociateReject(DcmRejectResult.Permanent, DcmRejectSource.ServiceUser, DcmRejectReason.CallingAENotRecognized);
+                    return;
+                }
+                else if (result == DcmAssociateResult.RejectNoReason)
+                {
+                    SendAssociateReject(DcmRejectResult.Permanent, DcmRejectSource.ServiceUser, DcmRejectReason.NoReasonGiven);
+                    return;
+                }
+                else
+                {
+                    foreach (DcmPresContext pc in association.GetPresentationContexts())
+                    {
+                        if (pc.Result == DcmPresContextResult.Proposed)
+                            pc.SetResult(DcmPresContextResult.RejectNoReason);
+                    }
+                }
+            }
+            else
+            {
+                DcmAssociateProfile profile = DcmAssociateProfile.Find(association, true);
+                profile.Apply(association);
+            }
+            SendAssociateAccept(association);
+        }
 
-		protected override void OnReceiveCEchoRequest(byte presentationID, ushort messageID, DcmPriority priority) {
-			DcmStatus status = DcmStatus.Success;
-			if (OnCEchoRequest != null)
-				status = OnCEchoRequest(this, presentationID, messageID, priority);
-			SendCEchoResponse(presentationID, messageID, status);
-		}
+        protected override void OnReceiveCEchoRequest(byte presentationID, ushort messageID, DcmPriority priority)
+        {
+            DcmStatus status = DcmStatus.Success;
+            if (OnCEchoRequest != null)
+                status = OnCEchoRequest(this, presentationID, messageID, priority);
+            SendCEchoResponse(presentationID, messageID, status);
+        }
 
-		protected override void OnReceiveCStoreRequest(byte presentationID, ushort messageID, DicomUID affectedInstance, 
-			DcmPriority priority, string moveAE, ushort moveMessageID, DcmDataset dataset, string fileName)
-		{
-			DcmStatus status = DcmStatus.Success;
+        protected override void OnReceiveCStoreRequest(byte presentationID, ushort messageID, DicomUID affectedInstance,
+            DcmPriority priority, string moveAE, ushort moveMessageID, DcmDataset dataset, string fileName)
+        {
+            DcmStatus status = DcmStatus.Success;
 
-			if (OnCStoreRequest != null)
-				status = OnCStoreRequest(this, presentationID, messageID, affectedInstance, priority, moveAE, moveMessageID, dataset, fileName);
+            if (OnCStoreRequest != null)
+                status = OnCStoreRequest(this, presentationID, messageID, affectedInstance, priority, moveAE, moveMessageID, dataset, fileName);
 
-			SendCStoreResponse(presentationID, messageID, affectedInstance, status);
-		}
+            SendCStoreResponse(presentationID, messageID, affectedInstance, status);
+        }
 
-		protected override void OnReceiveDimseBegin(byte pcid, DcmCommand command, DcmDataset dataset, DcmDimseProgress progress) {
-			if (command.CommandField == DcmCommandField.CStoreRequest && OnCStoreRequestBegin != null)
-				OnCStoreRequestBegin(this, pcid, command, dataset, progress);
-		}
+        protected override void OnReceiveDimseBegin(byte pcid, DcmCommand command, DcmDataset dataset, DcmDimseProgress progress)
+        {
+            if (command.CommandField == DcmCommandField.CStoreRequest && OnCStoreRequestBegin != null)
+                OnCStoreRequestBegin(this, pcid, command, dataset, progress);
+        }
 
-		protected override void OnReceiveDimseProgress(byte pcid, DcmCommand command, DcmDataset dataset, DcmDimseProgress progress) {
-			if (command.CommandField == DcmCommandField.CStoreRequest && OnCStoreRequestProgress != null)
-				OnCStoreRequestProgress(this, pcid, command, dataset, progress);
-		}
-	}
+        protected override void OnReceiveDimseProgress(byte pcid, DcmCommand command, DcmDataset dataset, DcmDimseProgress progress)
+        {
+            if (command.CommandField == DcmCommandField.CStoreRequest && OnCStoreRequestProgress != null)
+                OnCStoreRequestProgress(this, pcid, command, dataset, progress);
+        }
+    }
 }

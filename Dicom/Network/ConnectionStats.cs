@@ -24,220 +24,253 @@ using System.Collections.Generic;
 using System.IO;
 using Dicom.Utility;
 
-namespace Dicom.Network {
-	public class ConnectionStats {
-		#region Member Variables
-		private long bytesDownloaded;
-		private long bytesUploaded;
-		private double downloadSpeed;
-		private double downloadSpeedPrevious;
-		private int lastUploadUpdateTime;
-		private int lastDownloadUpdateTime;
-		private int tempUploadCount;
-		private int tempDownloadCount;
-		private double uploadSpeed;
-		private double uploadSpeedPrevious;
-		private object downloadLock = new object();
-		private object uploadLock = new object();
-		#endregion
+namespace Dicom.Network
+{
+    public class ConnectionStats
+    {
+        #region Member Variables
+        private long bytesDownloaded;
+        private long bytesUploaded;
+        private double downloadSpeed;
+        private double downloadSpeedPrevious;
+        private int lastUploadUpdateTime;
+        private int lastDownloadUpdateTime;
+        private int tempUploadCount;
+        private int tempDownloadCount;
+        private double uploadSpeed;
+        private double uploadSpeedPrevious;
+        private object downloadLock = new object();
+        private object uploadLock = new object();
+        #endregion
 
-		#region Public Properties
-		/// <summary>
-		/// Returns the total bytes downloaded from this peer
-		/// </summary>
-		public long BytesDownloaded {
-			get { return bytesDownloaded; }
-		}
-
-
-		/// <summary>
-		/// Returns the total bytes uploaded to this peer
-		/// </summary>
-		public long BytesUploaded {
-			get { return bytesUploaded; }
-		}
+        #region Public Properties
+        /// <summary>
+        /// Returns the total bytes downloaded from this peer
+        /// </summary>
+        public long BytesDownloaded
+        {
+            get { return bytesDownloaded; }
+        }
 
 
-		/// <summary>
-		/// The current average download speed in bytes per second
-		/// </summary>
-		/// <returns></returns>
-		public double DownloadSpeed {
-			get {
-				UpdateDownloadSpeed();
-				return downloadSpeed;
-			}
-		}
+        /// <summary>
+        /// Returns the total bytes uploaded to this peer
+        /// </summary>
+        public long BytesUploaded
+        {
+            get { return bytesUploaded; }
+        }
 
 
-		/// <summary>
-		/// The current average upload speed in byte/second
-		/// </summary>
-		/// <returns></returns>
-		public double UploadSpeed {
-			get {
-				UpdateUploadSpeed();
-				return uploadSpeed;
-			}
-		}
-		#endregion
+        /// <summary>
+        /// The current average download speed in bytes per second
+        /// </summary>
+        /// <returns></returns>
+        public double DownloadSpeed
+        {
+            get
+            {
+                UpdateDownloadSpeed();
+                return downloadSpeed;
+            }
+        }
 
-		#region Constructors
-		internal ConnectionStats() {
-			lastUploadUpdateTime = Environment.TickCount;
-			lastDownloadUpdateTime = Environment.TickCount;
-		}
-		#endregion
 
-		#region Methods
-		internal void NotifyBytesDownloaded(int bytes) {
-			lock (downloadLock) {
-				bytesDownloaded += bytes;
-				tempDownloadCount += bytes;
-			}
-		}
+        /// <summary>
+        /// The current average upload speed in byte/second
+        /// </summary>
+        /// <returns></returns>
+        public double UploadSpeed
+        {
+            get
+            {
+                UpdateUploadSpeed();
+                return uploadSpeed;
+            }
+        }
+        #endregion
 
-		private void UpdateDownloadSpeed() {
-			lock (downloadLock) {
-				int currentTime = Environment.TickCount;
+        #region Constructors
+        internal ConnectionStats()
+        {
+            lastUploadUpdateTime = Environment.TickCount;
+            lastDownloadUpdateTime = Environment.TickCount;
+        }
+        #endregion
 
-				int difference = currentTime - lastDownloadUpdateTime;
+        #region Methods
+        internal void NotifyBytesDownloaded(int bytes)
+        {
+            lock (downloadLock)
+            {
+                bytesDownloaded += bytes;
+                tempDownloadCount += bytes;
+            }
+        }
 
-				if (difference <= 0)
-					difference = 1000;
+        private void UpdateDownloadSpeed()
+        {
+            lock (downloadLock)
+            {
+                int currentTime = Environment.TickCount;
 
-				if (difference < 500)
-					return;
+                int difference = currentTime - lastDownloadUpdateTime;
 
-				downloadSpeed = tempDownloadCount / (difference / 1000.0);
-				
-				if (downloadSpeedPrevious != 0.0)
-					downloadSpeed = (downloadSpeed + downloadSpeedPrevious) / 2;
-				
-				downloadSpeedPrevious = downloadSpeed;
+                if (difference <= 0)
+                    difference = 1000;
 
-				tempDownloadCount = 0;
-				lastDownloadUpdateTime = currentTime;
-			}
-		}
+                if (difference < 500)
+                    return;
 
-		internal void NotifyBytesUploaded(int bytes) {
-			lock (uploadLock) {
-				bytesUploaded += bytes;
-				tempUploadCount += bytes;
-			}
-		}
+                downloadSpeed = tempDownloadCount / (difference / 1000.0);
 
-		private void UpdateUploadSpeed() {
-			lock (uploadLock) {
-				int currentTime = Environment.TickCount;
+                if (downloadSpeedPrevious != 0.0)
+                    downloadSpeed = (downloadSpeed + downloadSpeedPrevious) / 2;
 
-				int difference = currentTime - lastUploadUpdateTime;
+                downloadSpeedPrevious = downloadSpeed;
 
-				if (difference <= 0)
-					difference = 1000;
+                tempDownloadCount = 0;
+                lastDownloadUpdateTime = currentTime;
+            }
+        }
 
-				if (difference < 500)
-					return;
+        internal void NotifyBytesUploaded(int bytes)
+        {
+            lock (uploadLock)
+            {
+                bytesUploaded += bytes;
+                tempUploadCount += bytes;
+            }
+        }
 
-				uploadSpeed = tempUploadCount / (difference / 1000.0);
+        private void UpdateUploadSpeed()
+        {
+            lock (uploadLock)
+            {
+                int currentTime = Environment.TickCount;
 
-				if (uploadSpeedPrevious != 0.0)
-					uploadSpeed = (uploadSpeed + uploadSpeedPrevious) / 2;
+                int difference = currentTime - lastUploadUpdateTime;
 
-				uploadSpeedPrevious = uploadSpeed;
+                if (difference <= 0)
+                    difference = 1000;
 
-				tempUploadCount = 0;
-				lastUploadUpdateTime = currentTime;
-			}
-		}
+                if (difference < 500)
+                    return;
 
-		public override string ToString() {
-			return String.Format("Sent: {0} @ {1}/s; Recv: {2} @ {3}/s;",
-				Format.ByteCount(BytesUploaded),
-				Format.ByteCount(UploadSpeed),
-				Format.ByteCount(BytesDownloaded),
-				Format.ByteCount(DownloadSpeed));
-		}
-		#endregion
-	}
+                uploadSpeed = tempUploadCount / (difference / 1000.0);
 
-	public class ConnectionMonitorStream : Stream {
-		#region Member Variables
-		private Stream stream;
-		private List<ConnectionStats> stats;
-		#endregion Member Variables
+                if (uploadSpeedPrevious != 0.0)
+                    uploadSpeed = (uploadSpeed + uploadSpeedPrevious) / 2;
 
-		#region Constructors
-		/// <summary>
-		/// Creates a new ConnectionMonitorStream
-		/// </summary>
-		internal ConnectionMonitorStream(Stream stream)
-		{
-			this.stream = stream;
-			this.stats = new List<ConnectionStats>();
-		}
-		#endregion
+                uploadSpeedPrevious = uploadSpeed;
 
-		#region Methods
-		public void AttachStats(ConnectionStats stat) {
-			if (!stats.Contains(stat))
-				stats.Add(stat);
-		}
-		#endregion
+                tempUploadCount = 0;
+                lastUploadUpdateTime = currentTime;
+            }
+        }
 
-		#region Stream Members
-		public override bool CanRead {
-			get { return stream.CanRead; }
-		}
+        public override string ToString()
+        {
+            return String.Format("Sent: {0} @ {1}/s; Recv: {2} @ {3}/s;",
+                Format.ByteCount(BytesUploaded),
+                Format.ByteCount(UploadSpeed),
+                Format.ByteCount(BytesDownloaded),
+                Format.ByteCount(DownloadSpeed));
+        }
+        #endregion
+    }
 
-		public override bool CanSeek {
-			get { return stream.CanSeek; }
-		}
+    public class ConnectionMonitorStream : Stream
+    {
+        #region Member Variables
+        private Stream stream;
+        private List<ConnectionStats> stats;
+        #endregion Member Variables
 
-		public override bool CanWrite {
-			get { return stream.CanWrite; }
-		}
+        #region Constructors
+        /// <summary>
+        /// Creates a new ConnectionMonitorStream
+        /// </summary>
+        internal ConnectionMonitorStream(Stream stream)
+        {
+            this.stream = stream;
+            this.stats = new List<ConnectionStats>();
+        }
+        #endregion
 
-		public override bool CanTimeout {
-			get { return stream.CanTimeout; }
-		}
+        #region Methods
+        public void AttachStats(ConnectionStats stat)
+        {
+            if (!stats.Contains(stat))
+                stats.Add(stat);
+        }
+        #endregion
 
-		public override void Flush() {
-			stream.Flush();
-		}
+        #region Stream Members
+        public override bool CanRead
+        {
+            get { return stream.CanRead; }
+        }
 
-		public override long Length {
-			get { return stream.Length; }
-		}
+        public override bool CanSeek
+        {
+            get { return stream.CanSeek; }
+        }
 
-		public override long Position {
-			get { return stream.Position; }
-			set { stream.Position = value; }
-		}
+        public override bool CanWrite
+        {
+            get { return stream.CanWrite; }
+        }
 
-		public override int Read(byte[] buffer, int offset, int count) {
-			int ret = stream.Read(buffer, offset, count);
-			foreach (ConnectionStats stat in stats) {
-				stat.NotifyBytesDownloaded(ret);
-			}
-			return ret;
-		}
+        public override bool CanTimeout
+        {
+            get { return stream.CanTimeout; }
+        }
 
-		public override long Seek(long offset, SeekOrigin origin) {
-			return stream.Seek(offset, origin);
-		}
+        public override void Flush()
+        {
+            stream.Flush();
+        }
 
-		public override void SetLength(long value) {
-			stream.SetLength(value);
-		}
+        public override long Length
+        {
+            get { return stream.Length; }
+        }
 
-		public override void Write(byte[] buffer, int offset, int count) {
-			stream.Write(buffer, offset, count);
-			foreach (ConnectionStats stat in stats) {
-				stat.NotifyBytesUploaded(count);
-			}
-		}
-		#endregion
-	}
+        public override long Position
+        {
+            get { return stream.Position; }
+            set { stream.Position = value; }
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            int ret = stream.Read(buffer, offset, count);
+            foreach (ConnectionStats stat in stats)
+            {
+                stat.NotifyBytesDownloaded(ret);
+            }
+            return ret;
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            return stream.Seek(offset, origin);
+        }
+
+        public override void SetLength(long value)
+        {
+            stream.SetLength(value);
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            stream.Write(buffer, offset, count);
+            foreach (ConnectionStats stat in stats)
+            {
+                stat.NotifyBytesUploaded(count);
+            }
+        }
+        #endregion
+    }
 }

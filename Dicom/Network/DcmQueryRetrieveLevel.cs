@@ -21,12 +21,14 @@
 
 using System;
 
-namespace Dicom.Network {
-	public enum DcmQueryRetrieveLevel {
-		Patient,
-		Study,
-		Series,
-		Image,
-		Worklist
-	}
+namespace Dicom.Network
+{
+    public enum DcmQueryRetrieveLevel
+    {
+        Patient,
+        Study,
+        Series,
+        Image,
+        Worklist
+    }
 }

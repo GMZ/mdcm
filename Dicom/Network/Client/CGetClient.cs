@@ -308,7 +308,7 @@ namespace Dicom.Network.Client
                 status = OnCStoreRequest(presentationID, messageID, affectedInstance, priority, moveAE, moveMessageID, dataset, fileName);
             }
 
-			SendCStoreResponse(presentationID, messageID, affectedInstance, status);
+            SendCStoreResponse(presentationID, messageID, affectedInstance, status);
         }
         #endregion
     }
