@@ -43,14 +43,7 @@ namespace Dicom
 
         public static Logger Log
         {
-            get
-            {
-                if (_log == null)
-                {
-                    _log = LogManager.GetLogger("DICOM");
-                }
-                return _log;
-            }
+            get { return _log ?? (_log = LogManager.GetLogger("DICOM")); }
             set
             {
                 _log = value;
@@ -63,18 +56,16 @@ namespace Dicom
         }
         public static void InitializeSyslogLogger(int port, bool console)
         {
-            LoggingConfiguration config = new LoggingConfiguration();
+            var config = new LoggingConfiguration();
 
-            SyslogTarget st = new SyslogTarget();
-            st.Port = port;
+            var st = new SyslogTarget {Port = port};
             config.AddTarget("Syslog", st);
 
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, st));
 
             if (console)
             {
-                ColoredConsoleTarget ct = new ColoredConsoleTarget();
-                ct.Layout = "${message}";
+                var ct = new ColoredConsoleTarget {Layout = "${message}"};
                 config.AddTarget("Console", ct);
 
                 config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, ct));
@@ -85,10 +76,9 @@ namespace Dicom
 
         public static void InitializeConsoleDebugLogger()
         {
-            LoggingConfiguration config = new LoggingConfiguration();
+            var config = new LoggingConfiguration();
 
-            ColoredConsoleTarget ct = new ColoredConsoleTarget();
-            ct.Layout = "${message}";
+            var ct = new ColoredConsoleTarget {Layout = "${message}"};
             config.AddTarget("Console", ct);
 
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, ct));
@@ -105,7 +95,7 @@ namespace Dicom
                 if (String.IsNullOrEmpty(_startdir))
                 {
                     _startdir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
-                    _startdir = _startdir.Substring(6);
+                    if (_startdir != null) _startdir = _startdir.Substring(6);
                 }
             }
             return _startdir;
@@ -115,14 +105,18 @@ namespace Dicom
         {
             try
             {
-                StackTrace trace = new StackTrace(true);
-                for (int i = 2; i < trace.FrameCount; )
+                var trace = new StackTrace(true);
+// ReSharper disable ForControlVariableIsNeverModified
+                for (var i = 2; i < trace.FrameCount; )
+// ReSharper restore ForControlVariableIsNeverModified
                 {
-                    StackFrame frame = trace.GetFrame(i);
+                    var frame = trace.GetFrame(i);
                     return String.Format("{0}() at {1}:{2}", frame.GetMethod().Name, frame.GetFileName(), frame.GetFileLineNumber());
                 }
             }
-            catch
+// ReSharper disable EmptyGeneralCatchClause
+            catch (Exception)
+// ReSharper restore EmptyGeneralCatchClause
             {
             }
             return "[unable to trace stack]";
