@@ -122,9 +122,18 @@ namespace Dicom.Imaging.Render {
 		#endregion
 
 		#region Public Constructors
-		public ImageGraphic(IPixelData pixelData) : this() {
+        public ImageGraphic(IPixelData pixelData, Double scaleVal = 0)
+            : this()
+        {
 			_originalData = pixelData;
-			Scale(1.0);
+            if (scaleVal > 0 && _originalData.Components == 1)
+            {
+                Scale(scaleVal);
+            }
+            else
+            {
+                Scale(1.0);
+            }
 		}
 
 		protected ImageGraphic() {

@@ -115,7 +115,12 @@
     <Compile Include="Imaging\WindowLevel.cs" />
     <Compile Include="Imaging\WpfExtensions.cs" />
     <Compile Include="IO\SegmentStream.cs" />
+    <Compile Include="Network\Client\CGetClient.cs" />
     <Compile Include="Network\Client\CStoreClient.cs" />
+    <Compile Include="Network\Client\Print\DcmFilmBox.cs" />
+    <Compile Include="Network\Client\Print\DcmFilmSession.cs" />
+    <Compile Include="Network\Client\Print\DcmImageBox.cs" />
+    <Compile Include="Network\Client\Print\PrintClient.cs" />
     <Compile Include="Network\DcmCommand.cs" />
     <Compile Include="Data\DicomDataException.cs" />
     <Compile Include="Data\DcmDataset.cs" />

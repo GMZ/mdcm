@@ -62,9 +62,9 @@ namespace Dicom.Imaging {
 		/// <summary>Renders DICOM image to System.Drawing.Image</summary>
 		/// <returns>Rendered image</returns>
 #if !SILVERLIGHT
-		public Image RenderImage()
+        public Image RenderImage(Double resize = 0)
 		{
-			ImageGraphic graphic = new ImageGraphic(_pixelData);
+            ImageGraphic graphic = new ImageGraphic(_pixelData, resize);
 
 			foreach (var overlay in _overlays) {
 				OverlayGraphic og = new OverlayGraphic(PixelDataFactory.Create(overlay), overlay.OriginX, overlay.OriginY, OverlayColor);
@@ -75,8 +75,9 @@ namespace Dicom.Imaging {
 		}
 #endif
 
-		public ImageSource RenderImageSource() {
-			ImageGraphic graphic = new ImageGraphic(_pixelData);
+        public ImageSource RenderImageSource(Double resize = 0)
+        {
+            ImageGraphic graphic = new ImageGraphic(_pixelData, resize);
 
 			foreach (var overlay in _overlays) {
 				OverlayGraphic og = new OverlayGraphic(PixelDataFactory.Create(overlay), overlay.OriginX, overlay.OriginY, OverlayColor);
