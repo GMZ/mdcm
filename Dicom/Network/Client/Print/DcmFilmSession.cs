@@ -28,11 +28,11 @@ namespace Dicom.Network.Client
     public class DcmFilmSession
     {
         #region Private Members
-        private DicomUID _sessionClass;
-        private DicomUID _sopInstance;
-        private DcmDataset _dataset;
+        private readonly DicomUID _sessionClass;
+        private readonly DicomUID _sopInstance;
+        private readonly DcmDataset _dataset;
 
-        private List<DcmFilmBox> _boxes;
+        private readonly List<DcmFilmBox> _boxes;
         #endregion
 
         #region Public Constructors
@@ -153,6 +153,7 @@ namespace Dicom.Network.Client
         ///   is placed on the number of BINs. The encoding of the BIN number shall not contain leading
         ///   zeros.</description>
         /// </item>
+        /// </list>
         /// </remarks>
         public string FilmDestination
         {
@@ -186,10 +187,10 @@ namespace Dicom.Network.Client
         #region Public Methods
         public DcmFilmBox CreateFilmBox(DicomUID sopInstance, DcmDataset dataset)
         {
-            DicomUID uid = sopInstance;
+            var uid = sopInstance;
             if (uid == null || uid.UID == String.Empty)
                 uid = DicomUID.Generate(SOPInstanceUID, _boxes.Count + 1);
-            DcmFilmBox box = new DcmFilmBox(this, uid, dataset);
+            var box = new DcmFilmBox(this, uid, dataset);
             _boxes.Add(box);
             return box;
         }

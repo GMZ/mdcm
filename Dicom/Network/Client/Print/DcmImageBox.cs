@@ -19,7 +19,6 @@
 // Author:
 //    Colby Dillion (colby.dillion@gmail.com)
 
-using System;
 using Dicom.Data;
 
 namespace Dicom.Network.Client
@@ -27,10 +26,10 @@ namespace Dicom.Network.Client
     public class DcmImageBox
     {
         #region Private Members
-        private DcmFilmBox _filmBox;
+        private readonly DcmFilmBox _filmBox;
         private DicomUID _sopClass;
-        private DicomUID _sopInstance;
-        private DcmDataset _dataset;
+        private readonly DicomUID _sopInstance;
+        private readonly DcmDataset _dataset;
         #endregion
 
         #region Public Constructors
@@ -94,11 +93,7 @@ namespace Dicom.Network.Client
         {
             get
             {
-                DcmItemSequence sq = null;
-                if (_sopClass == ColorSOPClassUID)
-                    sq = _dataset.GetSQ(DicomTags.BasicColorImageSequence);
-                else
-                    sq = _dataset.GetSQ(DicomTags.BasicGrayscaleImageSequence);
+                var sq = _dataset.GetSQ(_sopClass == ColorSOPClassUID ? DicomTags.BasicColorImageSequence : DicomTags.BasicGrayscaleImageSequence);
 
 
                 if (sq != null && sq.SequenceItems.Count > 0)

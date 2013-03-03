@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using Dicom;
+using System.Linq;
 using Dicom.Data;
 
 namespace Dicom.Network.Client
@@ -29,10 +29,10 @@ namespace Dicom.Network.Client
     public class DcmFilmBox
     {
         #region Private Members
-        private DcmFilmSession _session;
-        private DicomUID _sopInstance;
-        private DcmDataset _dataset;
-        private List<DcmImageBox> _boxes;
+        private readonly DcmFilmSession _session;
+        private readonly DicomUID _sopInstance;
+        private readonly DcmDataset _dataset;
+        private readonly List<DcmImageBox> _boxes;
         #endregion
 
         #region Public Constructors
@@ -413,18 +413,23 @@ namespace Dicom.Network.Client
 
         public DcmImageBox FindImageBox(DicomUID instUid)
         {
-            foreach (DcmImageBox box in _boxes)
-            {
-                if (box.SOPInstanceUID.UID == instUid.UID)
-                    return box;
-            }
-            return null;
+            //foreach (DcmImageBox box in _boxes)
+            //{
+            //    if (box.SOPInstanceUID.UID == instUid.UID)
+            //        return box;
+            //}
+            return _boxes.FirstOrDefault(box => box.SOPInstanceUID.UID == instUid.UID);
         }
 
         public DcmFilmBox Clone()
         {
-            DcmFilmBox box = new DcmFilmBox(_session, SOPInstanceUID, Dataset.Clone());
-            foreach (DcmImageBox imageBox in BasicImageBoxes)
+            //DcmFilmBox box = new DcmFilmBox(_session, SOPInstanceUID, Dataset.Clone());
+            //foreach (DcmImageBox imageBox in BasicImageBoxes)
+            //{
+            //    box.BasicImageBoxes.Add(imageBox.Clone());
+            //}
+            var box = new DcmFilmBox(_session, SOPInstanceUID, Dataset.Clone());
+            foreach (var imageBox in BasicImageBoxes)
             {
                 box.BasicImageBoxes.Add(imageBox.Clone());
             }
@@ -435,14 +440,16 @@ namespace Dicom.Network.Client
         #region Private Methods
         private void CreateImageBox()
         {
-            DicomUID classUid = DicomUID.BasicGrayscaleImageBoxSOPClass;
-            if (_session.SessionClassUID == DicomUID.BasicColorPrintManagementMetaSOPClass)
+            var classUid = DicomUID.BasicGrayscaleImageBoxSOPClass;
+            if (Equals(_session.SessionClassUID, DicomUID.BasicColorPrintManagementMetaSOPClass))
                 classUid = DicomUID.BasicColorImageBoxSOPClass;
 
-            DicomUID instUid = DicomUID.Generate(SOPInstanceUID, _boxes.Count + 1);
+            var instUid = DicomUID.Generate(SOPInstanceUID, _boxes.Count + 1);
 
-            DcmImageBox box = new DcmImageBox(this, classUid, instUid);
-            box.ImageBoxPosition = (ushort)(_boxes.Count + 1);
+            var box = new DcmImageBox(this, classUid, instUid)
+                                  {
+                                      ImageBoxPosition = (ushort) (_boxes.Count + 1)
+                                  };
             _boxes.Add(box);
 
             _dataset.AddReferenceSequenceItem(DicomTags.ReferencedImageBoxSequence, classUid, instUid);

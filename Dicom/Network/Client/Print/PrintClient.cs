@@ -19,10 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using Dicom;
 using Dicom.Data;
-using Dicom.Network;
-using Dicom.Network.Client;
 using Dicom.Imaging;
 
 namespace Dicom.Network.Client
@@ -30,7 +27,7 @@ namespace Dicom.Network.Client
     public class DcmPrinterStatus
     {
         #region Private Members
-        private DcmDataset _dataset;
+        private readonly DcmDataset _dataset;
         #endregion
 
         #region Public Constructors
@@ -88,7 +85,7 @@ namespace Dicom.Network.Client
     public sealed class PrintClient : DcmClientBase
     {
         #region Private Members
-        private List<String> _files;
+        private readonly List<String> _files; //made readonly
         private int _numberOfCopies;
         private string _printPriority;
         private string _mediumType;
@@ -118,9 +115,9 @@ namespace Dicom.Network.Client
         private bool _supportsGrayscalePrinting;
         private bool _supportsColorPrinting;
 
-        private DcmFilmSession _filmSession = null;
-        private List<DcmFilmBox> _pendingFilmBoxResponses = null; 
-        private List<DcmImageBox> _pendingImageBoxResponses = null; 
+        private DcmFilmSession _filmSession;
+        private readonly List<DcmFilmBox> _pendingFilmBoxResponses; //made readonly
+        private readonly List<DcmImageBox> _pendingImageBoxResponses; //made readonly
         #endregion
 
         #region Public Constructor
