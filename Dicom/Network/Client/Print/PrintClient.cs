@@ -122,7 +122,6 @@ namespace Dicom.Network.Client
 
         #region Public Constructor
         public PrintClient()
-            : base()
         {
 			LogID = "Print SCU";
 			CallingAE = "PRINT_SCU";
@@ -213,6 +212,7 @@ namespace Dicom.Network.Client
         ///   is placed on the number of BINs. The encoding of the BIN number shall not contain leading
         ///   zeros.</description>
         /// </item>
+        /// </list>
         /// </remarks>
         public string FilmDestination
         {
@@ -493,7 +493,7 @@ namespace Dicom.Network.Client
         #region Protected Overrides
         protected override void OnConnected()
         {
-            DcmAssociate associate = new DcmAssociate();
+            var associate = new DcmAssociate();
 
             byte pcid = associate.AddPresentationContext(DicomUID.PrinterSOPClass);
             associate.AddTransferSyntax(pcid, DicomTransferSyntax.ExplicitVRLittleEndian);
@@ -521,14 +521,11 @@ namespace Dicom.Network.Client
 
         private void PerformPrinterQueryOrRelease()
         {
-            byte pcidPrinterSOPClass, pcidBasicGrayscalePrintManagementMetaSOPClass, 
-                pcidBasicColorPrintManagementMetaSOPClass;
-
             if (_files.Count > 0)
             {
-                pcidPrinterSOPClass = Associate.FindAbstractSyntax(DicomUID.PrinterSOPClass);
-                pcidBasicGrayscalePrintManagementMetaSOPClass = Associate.FindAbstractSyntax(DicomUID.BasicGrayscalePrintManagementMetaSOPClass);
-                pcidBasicColorPrintManagementMetaSOPClass = Associate.FindAbstractSyntax(DicomUID.BasicColorPrintManagementMetaSOPClass);
+                var pcidPrinterSOPClass = Associate.FindAbstractSyntax(DicomUID.PrinterSOPClass);
+                var pcidBasicGrayscalePrintManagementMetaSOPClass = Associate.FindAbstractSyntax(DicomUID.BasicGrayscalePrintManagementMetaSOPClass);
+                var pcidBasicColorPrintManagementMetaSOPClass = Associate.FindAbstractSyntax(DicomUID.BasicColorPrintManagementMetaSOPClass);
 
                 if (Associate.GetPresentationContextResult(pcidPrinterSOPClass) == DcmPresContextResult.Accept)
                 {
@@ -555,17 +552,19 @@ namespace Dicom.Network.Client
                     return;
                 }
 
-                if (_queryPrinterStatus == true)
+                if (_queryPrinterStatus)
                 {
-                    List<DicomTag> attributes = new List<DicomTag>();
-                    attributes.Add(DicomTags.PrinterStatus);
-                    attributes.Add(DicomTags.PrinterName);
-                    attributes.Add(DicomTags.Manufacturer);
-                    attributes.Add(DicomTags.ManufacturersModelName);
-                    attributes.Add(DicomTags.DeviceSerialNumber);
-                    attributes.Add(DicomTags.SoftwareVersions);
-                    attributes.Add(DicomTags.DateOfLastCalibration);
-                    attributes.Add(DicomTags.TimeOfLastCalibration);
+                    var attributes = new List<DicomTag>
+                                         {
+                                             DicomTags.PrinterStatus,
+                                             DicomTags.PrinterName,
+                                             DicomTags.Manufacturer,
+                                             DicomTags.ManufacturersModelName,
+                                             DicomTags.DeviceSerialNumber,
+                                             DicomTags.SoftwareVersions,
+                                             DicomTags.DateOfLastCalibration,
+                                             DicomTags.TimeOfLastCalibration
+                                         };
 
                     SendNGetRequest(pcidPrinterSOPClass, 1, DicomUID.PrinterSOPClass, DicomUID.PrinterSOPInstance, attributes.ToArray());
                 }
@@ -585,7 +584,7 @@ namespace Dicom.Network.Client
         {
             if (OnPrintGetPrinterStatusResponse != null)
             {
-                DcmPrinterStatus printerstatus = new DcmPrinterStatus(dataset);
+                var printerstatus = new DcmPrinterStatus(dataset);
                 _acceptedPrinterStatus = OnPrintGetPrinterStatusResponse(printerstatus, status);
             }
 
@@ -603,7 +602,9 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
+// ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmSessionSOPClass)
+// ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -616,9 +617,9 @@ namespace Dicom.Network.Client
 
                         for (int i = 0; i < filmBoxesCount; i++)
                         {
-                            DicomUID uid = DicomUID.Generate();
-                            DcmDataset filmBoxDataset = new DcmDataset(DicomTransferSyntax.ImplicitVRLittleEndian);
-                            DcmFilmBox filmBox = _filmSession.CreateFilmBox(uid, filmBoxDataset.Clone());
+                            var uid = DicomUID.Generate();
+                            var filmBoxDataset = new DcmDataset(DicomTransferSyntax.ImplicitVRLittleEndian);
+                            var filmBox = _filmSession.CreateFilmBox(uid, filmBoxDataset.Clone());
 
                             filmBox.AnnotationDisplayFormatID = _annotationDisplayFormatID;
                             filmBox.BorderDensity = _borderDensity;
@@ -643,24 +644,25 @@ namespace Dicom.Network.Client
                     }
                 }
 
+// ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmBoxSOPClass)
+// ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
-                        DcmFilmBox filmBox = _filmSession.FindFilmBox(affectedInstance);
-                        int filmBoxIndex = _filmSession.BasicFilmBoxes.IndexOf(filmBox);
+                        var filmBox = _filmSession.FindFilmBox(affectedInstance);
+                        var filmBoxIndex = _filmSession.BasicFilmBoxes.IndexOf(filmBox);
                         if (filmBox != null)
-                        {                         
-                            DcmItemSequence referencedImageBoxSequenceList = null;
-                            referencedImageBoxSequenceList = dataset.GetSQ(DicomTags.ReferencedImageBoxSequence);
+                        {
+                            var referencedImageBoxSequenceList = dataset.GetSQ(DicomTags.ReferencedImageBoxSequence);
                             if (referencedImageBoxSequenceList != null)
                             {
-                                foreach (DcmItemSequenceItem item in referencedImageBoxSequenceList.SequenceItems)
+                                foreach (var item in referencedImageBoxSequenceList.SequenceItems)
                                 {
-                                    DicomUID referencedSOPInstanceUID = item.Dataset.GetUID(DicomTags.ReferencedSOPInstanceUID);
+                                    var referencedSOPInstanceUID = item.Dataset.GetUID(DicomTags.ReferencedSOPInstanceUID);
                                     if (referencedSOPInstanceUID != null)
                                     {
-                                        DcmImageBox imageBox = new DcmImageBox(filmBox, DcmImageBox.GraySOPClassUID, referencedSOPInstanceUID);
+                                        var imageBox = new DcmImageBox(filmBox, DcmImageBox.GraySOPClassUID, referencedSOPInstanceUID);
                                         filmBox.BasicImageBoxes.Add(imageBox);
                                     }
                                 }
@@ -669,9 +671,9 @@ namespace Dicom.Network.Client
                             _pendingImageBoxResponses.Clear();
                             if (filmBox.BasicImageBoxes.Count > 0)
                             {
-                                int imageBoxIndex = 0;
-                                int imagesPerFilmbox = CalculateImagesPreFilmBox();
-                                foreach (DcmImageBox imageBox in filmBox.BasicImageBoxes)
+                                var imageBoxIndex = 0;
+                                var imagesPerFilmbox = CalculateImagesPreFilmBox();
+                                foreach (var imageBox in filmBox.BasicImageBoxes)
                                 {
                                     if (imagesPerFilmbox * filmBoxIndex + imageBoxIndex < _files.Count)
                                     {
@@ -698,8 +700,10 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
+// ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicColorImageBoxSOPClass ||
                     affectedClass == DicomUID.BasicGrayscaleImageBoxSOPClass)
+// ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -726,7 +730,9 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
+// ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmSessionSOPClass)
+// ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -750,7 +756,9 @@ namespace Dicom.Network.Client
         {
             if (_filmSession != null)
             {
+// ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmBoxSOPClass)
+// ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -768,7 +776,9 @@ namespace Dicom.Network.Client
                     }
                 }
 
+// ReSharper disable PossibleUnintendedReferenceComparison
                 if (affectedClass == DicomUID.BasicFilmSessionSOPClass)
+// ReSharper restore PossibleUnintendedReferenceComparison
                 {
                     if (status == DcmStatus.Success)
                     {
@@ -785,17 +795,18 @@ namespace Dicom.Network.Client
         #region Private Methods
         private void CreateFilmSession()
         {
-            DcmDataset fimSessionDataset = new DcmDataset(DicomTransferSyntax.ImplicitVRLittleEndian);
-            _filmSession = new DcmFilmSession(DcmFilmSession.SOPClassUID,
-                                                            DicomUID.Generate(), fimSessionDataset.Clone());
-            _filmSession.FilmDestination = _filmDestination;
-            _filmSession.FilmSessionLabel = _filmSessionLabel;
-            _filmSession.MediumType = _mediumType;
-            _filmSession.NumberOfCopies = _numberOfCopies;
-            _filmSession.OwnerID = _ownerID;
-            _filmSession.PrintPriority = _printPriority;
+            var fimSessionDataset = new DcmDataset(DicomTransferSyntax.ImplicitVRLittleEndian);
+            _filmSession = new DcmFilmSession(DcmFilmSession.SOPClassUID, DicomUID.Generate(), fimSessionDataset.Clone())
+                               {
+                                   FilmDestination = _filmDestination,
+                                   FilmSessionLabel = _filmSessionLabel,
+                                   MediumType = _mediumType,
+                                   NumberOfCopies = _numberOfCopies,
+                                   OwnerID = _ownerID,
+                                   PrintPriority = _printPriority
+                               };
 
-            byte pcid = Associate.FindAbstractSyntax(DicomUID.BasicGrayscalePrintManagementMetaSOPClass);
+            var pcid = Associate.FindAbstractSyntax(DicomUID.BasicGrayscalePrintManagementMetaSOPClass);
             SendNCreateRequest(pcid, NextMessageID(), DcmFilmSession.SOPClassUID, _filmSession.SOPInstanceUID, _filmSession.Dataset);
         }
 
@@ -806,18 +817,21 @@ namespace Dicom.Network.Client
             if (String.IsNullOrEmpty(_imageDisplayFormat))
                 return 0;
 
-            string[] parts = _imageDisplayFormat.Split('\\');
+            var parts = _imageDisplayFormat.Split('\\');
             if (parts[0] == "STANDARD" && parts.Length == 2)
             {
                 parts = parts[1].Split(',');
                 if (parts.Length == 2)
                 {
-                    try
-                    {
-                        cols = int.Parse(parts[0]);
-                        rows = int.Parse(parts[1]);
-                    }
-                    catch (Exception) { }
+                    //try
+                    //{
+                    cols = int.Parse(parts[0]);
+                    rows = int.Parse(parts[1]);
+                    //}
+                    //catch (Exception)
+                    //{
+                    //    throw;
+                    //}
                 }
             }
 
@@ -840,58 +854,58 @@ namespace Dicom.Network.Client
 
         private void UpdateImageBox(DcmImageBox imageBox, String filename, int index)
         {
-            try
+            //try
+            //{
+            var ff = new DicomFileFormat();
+            ff.Load(filename, DicomReadOptions.DefaultWithoutDeferredLoading);
+            if (ff.Dataset == null)
+                return;
+
+            ff.Dataset.ChangeTransferSyntax(DicomTransferSyntax.ImplicitVRLittleEndian, null);
+
+            var pixelData = new DcmPixelData(ff.Dataset);
+            var pi = PhotometricInterpretation.Lookup(pixelData.PhotometricInterpretation);
+
+            // Grayscale only printer?
+            if (pi.IsColor && _supportsColorPrinting == false)
             {
-                DicomFileFormat ff = new DicomFileFormat();
-                ff.Load(filename, DicomReadOptions.DefaultWithoutDeferredLoading);
-                if (ff.Dataset != null)
-                {
-                    ff.Dataset.ChangeTransferSyntax(DicomTransferSyntax.ImplicitVRLittleEndian, null);
-                    
-                    DcmPixelData pixelData = new DcmPixelData(ff.Dataset);
-                    PhotometricInterpretation pi = PhotometricInterpretation.Lookup(pixelData.PhotometricInterpretation);
-
-                    // Grayscale only printer?
-                    if (pi.IsColor == true && _supportsColorPrinting == false)
-                    {
-                        pixelData.Unload();
-                        return;
-                    }
-
-                    // Color only printer?
-                    if (pi.IsColor == false && _supportsGrayscalePrinting == false)
-                    {
-                        pixelData.Unload();
-                        return;
-                    }
-
-                    DicomUID imageBoxSOPClassUID = null;
-                    DcmItemSequence seq = null;
-                    DcmItemSequenceItem item = new DcmItemSequenceItem();
-                    pixelData.UpdateDataset(item.Dataset);
-                    
-                    if (pi.IsColor == true)
-                    {
-                        imageBoxSOPClassUID = DicomUID.BasicColorImageBoxSOPClass;
-                        seq = new DcmItemSequence(DicomTags.BasicColorImageSequence);
-                    }
-                    else
-                    {
-                        imageBoxSOPClassUID = DicomUID.BasicGrayscaleImageBoxSOPClass;
-                        seq = new DcmItemSequence(DicomTags.BasicGrayscaleImageSequence);
-                    }
-                    seq.AddSequenceItem(item);
-                    imageBox.Dataset.AddItem(seq);
-
-                    pixelData.Unload();
-
-                    imageBox.UpdateImageBox(imageBoxSOPClassUID);
-                    imageBox.ImageBoxPosition = (ushort)index;
-                }
+                pixelData.Unload();
+                return;
             }
-            catch (Exception)
+
+            // Color only printer?
+            if (pi.IsColor == false && _supportsGrayscalePrinting == false)
             {
+                pixelData.Unload();
+                return;
             }
+
+            DicomUID imageBoxSOPClassUID;
+            DcmItemSequence seq;
+            var item = new DcmItemSequenceItem();
+            pixelData.UpdateDataset(item.Dataset);
+
+            if (pi.IsColor)
+            {
+                imageBoxSOPClassUID = DicomUID.BasicColorImageBoxSOPClass;
+                seq = new DcmItemSequence(DicomTags.BasicColorImageSequence);
+            }
+            else
+            {
+                imageBoxSOPClassUID = DicomUID.BasicGrayscaleImageBoxSOPClass;
+                seq = new DcmItemSequence(DicomTags.BasicGrayscaleImageSequence);
+            }
+            seq.AddSequenceItem(item);
+            imageBox.Dataset.AddItem(seq);
+
+            pixelData.Unload();
+
+            imageBox.UpdateImageBox(imageBoxSOPClassUID);
+            imageBox.ImageBoxPosition = (ushort)index;
+            //}
+            //catch (Exception)
+            //{
+            //}
         }
         #endregion
     }
