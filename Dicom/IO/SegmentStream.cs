@@ -22,75 +22,91 @@
 using System;
 using System.IO;
 
-namespace Dicom.IO {
-	public class SegmentStream : Stream {
-		private Stream _internalStream;
-		private long _position;
-		private long _length;
+namespace Dicom.IO
+{
+    public class SegmentStream : Stream
+    {
+        private Stream _internalStream;
+        private long _position;
+        private long _length;
 
-		public SegmentStream(Stream stream, long position, long length) : base() {
-			_internalStream = stream;
-			_position = position;
-			_length = length;
-		}
+        public SegmentStream(Stream stream, long position, long length)
+            : base()
+        {
+            _internalStream = stream;
+            _position = position;
+            _length = length;
+        }
 
-		public override bool CanRead {
-			get { return _internalStream.CanRead; }
-		}
+        public override bool CanRead
+        {
+            get { return _internalStream.CanRead; }
+        }
 
-		public override bool CanSeek {
-			get { return true; }
-		}
+        public override bool CanSeek
+        {
+            get { return true; }
+        }
 
-		public override bool CanWrite {
-			get { return false; }
-		}
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
 
-		public override void Flush() {
-		}
+        public override void Flush()
+        {
+        }
 
-		public override long Length {
-			get { return _length; }
-		}
+        public override long Length
+        {
+            get { return _length; }
+        }
 
-		public override long Position {
-			get {
-				return _internalStream.Position - _position;
-			}
-			set {
-				if (value < 0)
-					throw new ArgumentOutOfRangeException("Attempted to set the position to a negative value.");
-				if (value >= _length)
-					throw new EndOfStreamException("Attempted seeking past the end of the stream or segment.");
-				_internalStream.Position = _position + value;
-			}
-		}
+        public override long Position
+        {
+            get
+            {
+                return _internalStream.Position - _position;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Attempted to set the position to a negative value.");
+                if (value >= _length)
+                    throw new EndOfStreamException("Attempted seeking past the end of the stream or segment.");
+                _internalStream.Position = _position + value;
+            }
+        }
 
-		public override int Read(byte[] buffer, int offset, int count) {
-			if (_internalStream.Position < _position ||
-				_internalStream.Position > (_position + _length))
-				throw new IOException("Internal stream position not in segment range.");
-			if ((Position + count) > Length)
-				count -= (int)((Position + count) - Length);
-			return _internalStream.Read(buffer, offset, count);
-		}
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            if (_internalStream.Position < _position ||
+                _internalStream.Position > (_position + _length))
+                throw new IOException("Internal stream position not in segment range.");
+            if ((Position + count) > Length)
+                count -= (int)((Position + count) - Length);
+            return _internalStream.Read(buffer, offset, count);
+        }
 
-		public override long Seek(long offset, SeekOrigin origin) {
-			if (origin == SeekOrigin.Begin)
-				Position = offset;
-			else if (origin == SeekOrigin.End)
-				Position = Length - offset;
-			else
-				Position = Position + offset;
-			return Position;
-		}
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            if (origin == SeekOrigin.Begin)
+                Position = offset;
+            else if (origin == SeekOrigin.End)
+                Position = Length - offset;
+            else
+                Position = Position + offset;
+            return Position;
+        }
 
-		public override void SetLength(long value) {
-			throw new NotSupportedException();
-		}
+        public override void SetLength(long value)
+        {
+            throw new NotSupportedException();
+        }
 
-		public override void Write(byte[] buffer, int offset, int count) {
-			throw new NotSupportedException();
-		}
-	}
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            throw new NotSupportedException();
+        }
+    }
 }

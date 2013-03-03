@@ -20,19 +20,21 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Dicom.IO {
-	/// <summary>
-	/// DICOM parse exception
-	/// </summary>
-	public class DicomParseException : Exception {
-		/// <summary>
-		/// Initializes a new DicomParseException
-		/// </summary>
-		/// <param name="msg">Exception message</param>
-		public DicomParseException(String msg) : base(msg) {
-		}
-	}
+namespace Dicom.IO
+{
+    /// <summary>
+    /// DICOM parse exception
+    /// </summary>
+    public class DicomParseException : Exception
+    {
+        /// <summary>
+        /// Initializes a new DicomParseException
+        /// </summary>
+        /// <param name="msg">Exception message</param>
+        public DicomParseException(String msg)
+            : base(msg)
+        {
+        }
+    }
 }

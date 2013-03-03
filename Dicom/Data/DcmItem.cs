@@ -25,80 +25,93 @@ using System.Text;
 
 using Dicom.IO;
 
-namespace Dicom.Data {
-	public abstract class DcmItem {
-		#region Private Members
-		private DicomTag _tag;
-		private DicomVR _vr;
-		private long _streamPosition;
-		private Endian _endian;
-		#endregion
+namespace Dicom.Data
+{
+    public abstract class DcmItem
+    {
+        #region Private Members
+        private DicomTag _tag;
+        private DicomVR _vr;
+        private long _streamPosition;
+        private Endian _endian;
+        #endregion
 
-		#region Public Constructors
-		public DcmItem(DicomTag tag, DicomVR vr) {
-			_tag = tag;
-			_vr = vr;
-			_streamPosition = 0;
-			_endian = Endian.LocalMachine;
-		}
+        #region Public Constructors
+        public DcmItem(DicomTag tag, DicomVR vr)
+        {
+            _tag = tag;
+            _vr = vr;
+            _streamPosition = 0;
+            _endian = Endian.LocalMachine;
+        }
 
-		public DcmItem(DicomTag tag, DicomVR vr, long pos, Endian endian) {
-			_tag = tag;
-			_vr = vr;
-			_streamPosition = pos;
-			_endian = endian;
-		}
-		#endregion
+        public DcmItem(DicomTag tag, DicomVR vr, long pos, Endian endian)
+        {
+            _tag = tag;
+            _vr = vr;
+            _streamPosition = pos;
+            _endian = endian;
+        }
+        #endregion
 
-		#region Public Properties
-		public DicomTag Tag {
-			get { return _tag; }
-		}
+        #region Public Properties
+        public DicomTag Tag
+        {
+            get { return _tag; }
+        }
 
-		public string Name {
-			get { return Tag.Entry.Name; }
-		}
+        public string Name
+        {
+            get { return Tag.Entry.Name; }
+        }
 
-		public DicomVR VR {
-			get { return _vr; }
-		}
+        public DicomVR VR
+        {
+            get { return _vr; }
+        }
 
-		public long StreamPosition {
-			get { return _streamPosition; }
-			set { _streamPosition = value; }
-		}
+        public long StreamPosition
+        {
+            get { return _streamPosition; }
+            set { _streamPosition = value; }
+        }
 
-		public Endian Endian {
-			get { return _endian; }
-			internal set {
-				if (_endian != value) {
-					_endian = value;
-					ChangeEndianInternal();
-				}
-			}
-		}
-		#endregion
+        public Endian Endian
+        {
+            get { return _endian; }
+            internal set
+            {
+                if (_endian != value)
+                {
+                    _endian = value;
+                    ChangeEndianInternal();
+                }
+            }
+        }
+        #endregion
 
-		#region Public Methods
-		public override string ToString() {
-			return _tag.Entry.ToString();
-		}
-		#endregion
+        #region Public Methods
+        public override string ToString()
+        {
+            return _tag.Entry.ToString();
+        }
+        #endregion
 
-		#region Methods to Override
-		internal abstract uint CalculateWriteLength(DicomTransferSyntax syntax, DicomWriteOptions options);
+        #region Methods to Override
+        internal abstract uint CalculateWriteLength(DicomTransferSyntax syntax, DicomWriteOptions options);
 
-		protected abstract void ChangeEndianInternal();
+        protected abstract void ChangeEndianInternal();
 
-		internal abstract void Preload();
+        internal abstract void Preload();
 
-		internal abstract void Unload();
+        internal abstract void Unload();
 
-		public abstract DcmItem Clone();
+        public abstract DcmItem Clone();
 
-		public virtual void Dump(StringBuilder sb, String prefix,  DicomDumpOptions options) {
-			sb.Append(prefix).AppendLine(_tag.Entry.ToString());
-		}
-		#endregion
-	}
+        public virtual void Dump(StringBuilder sb, String prefix, DicomDumpOptions options)
+        {
+            sb.Append(prefix).AppendLine(_tag.Entry.ToString());
+        }
+        #endregion
+    }
 }

@@ -20,19 +20,21 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Dicom.Codec {
-	/// <summary>
-	/// DICOM Codec Exception
-	/// </summary>
-	public class DicomCodecException : Exception {
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DicomCodecException"/> class.
-		/// </summary>
-		/// <param name="msg">Exception message</param>
-		public DicomCodecException(String msg) : base(msg) {
-		}
-	}
+namespace Dicom.Codec
+{
+    /// <summary>
+    /// DICOM Codec Exception
+    /// </summary>
+    public class DicomCodecException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DicomCodecException"/> class.
+        /// </summary>
+        /// <param name="msg">Exception message</param>
+        public DicomCodecException(String msg)
+            : base(msg)
+        {
+        }
+    }
 }

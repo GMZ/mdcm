@@ -22,104 +22,122 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Dicom.Utility {
-	public class PinnedArray<T> : IDisposable {
-		#region Private Members
-		private T[] _data;
-		private int _count;
+namespace Dicom.Utility
+{
+    public class PinnedArray<T> : IDisposable
+    {
+        #region Private Members
+        private T[] _data;
+        private int _count;
 #if !SILVERLIGHT
-		private int _size;
-		private GCHandle _handle;
-		private IntPtr _pointer;
+        private int _size;
+        private GCHandle _handle;
+        private IntPtr _pointer;
 #endif
-		#endregion
+        #endregion
 
-		#region Public Properties
-		public T[] Data {
-			get { return _data; }
-		}
+        #region Public Properties
+        public T[] Data
+        {
+            get { return _data; }
+        }
 
-		public int Count {
-			get { return _count; }
-		}
+        public int Count
+        {
+            get { return _count; }
+        }
 
 #if !SILVERLIGHT
-		public int ByteSize {
-			get { return _size; }
-		}
+        public int ByteSize
+        {
+            get { return _size; }
+        }
 
-		public IntPtr Pointer {
-			get { return _pointer; }
-		}
+        public IntPtr Pointer
+        {
+            get { return _pointer; }
+        }
 #endif
-		public T this[int index] {
-			get { return _data[index]; }
-			set { _data[index] = value; }
-		}
-		#endregion
+        public T this[int index]
+        {
+            get { return _data[index]; }
+            set { _data[index] = value; }
+        }
+        #endregion
 
-		#region Public Constructor
-		public PinnedArray(int count) {
-			_count = count;
-			_data = new T[_count];
+        #region Public Constructor
+        public PinnedArray(int count)
+        {
+            _count = count;
+            _data = new T[_count];
 #if !SILVERLIGHT
-			_size = Marshal.SizeOf(typeof(T)) * _count;
-			_handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
-			_pointer = _handle.AddrOfPinnedObject();
-#endif
-		}
-
-		public PinnedArray(T[] data) {
-			_count = data.Length;
-			_data = data;
-#if !SILVERLIGHT
-			_size = Marshal.SizeOf(typeof(T)) * _count;
-			_handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
-			_pointer = _handle.AddrOfPinnedObject();
+            _size = Marshal.SizeOf(typeof(T)) * _count;
+            _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
+            _pointer = _handle.AddrOfPinnedObject();
 #endif
         }
 
-		~PinnedArray() {
-			Dispose(false);
-		}
-		#endregion
+        public PinnedArray(T[] data)
+        {
+            _count = data.Length;
+            _data = data;
+#if !SILVERLIGHT
+            _size = Marshal.SizeOf(typeof(T)) * _count;
+            _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
+            _pointer = _handle.AddrOfPinnedObject();
+#endif
+        }
 
-		#region Public Members
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-		#endregion
+        ~PinnedArray()
+        {
+            Dispose(false);
+        }
+        #endregion
 
-		#region Private Members
-		private void Dispose(bool disposing) {
+        #region Public Members
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
+        #region Private Members
+        private void Dispose(bool disposing)
+        {
             if (_data != null)
             {
 #if !SILVERLIGHT
-				_handle.Free();
-				_pointer = IntPtr.Zero;
+                _handle.Free();
+                _pointer = IntPtr.Zero;
 #endif
                 _data = null;
             }
-		}
-		#endregion
-	}
+        }
+        #endregion
+    }
 
-	public class PinnedByteArray : PinnedArray<byte> {
-		public PinnedByteArray(int count)
-			: base(count) {
-		}
-		public PinnedByteArray(byte[] data)
-			: base(data) {
-		}
-	}
+    public class PinnedByteArray : PinnedArray<byte>
+    {
+        public PinnedByteArray(int count)
+            : base(count)
+        {
+        }
+        public PinnedByteArray(byte[] data)
+            : base(data)
+        {
+        }
+    }
 
-	public class PinnedIntArray : PinnedArray<int> {
-		public PinnedIntArray(int count)
-			: base(count) {
-		}
-		public PinnedIntArray(int[] data)
-			: base(data) {
-		}
-	}
+    public class PinnedIntArray : PinnedArray<int>
+    {
+        public PinnedIntArray(int count)
+            : base(count)
+        {
+        }
+        public PinnedIntArray(int[] data)
+            : base(data)
+        {
+        }
+    }
 }

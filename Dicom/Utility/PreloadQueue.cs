@@ -24,144 +24,177 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Dicom.Utility {
-	public interface IPreloadable<Tstate> {
-		bool IsLoaded { get; }
-		void Load(Tstate state, bool useIsoStore = false);
-	}
+namespace Dicom.Utility
+{
+    public interface IPreloadable<Tstate>
+    {
+        bool IsLoaded { get; }
+        void Load(Tstate state, bool useIsoStore = false);
+    }
 
-	public class PreloadQueue<Titem, Tstate> : IEnumerable<Titem> where Titem : class, IPreloadable<Tstate> {
-		#region Private Members
-		private Queue<Titem> _queue;
-		private object _queueLock;
-		private Tstate _state;
-		#endregion
+    public class PreloadQueue<Titem, Tstate> : IEnumerable<Titem> where Titem : class, IPreloadable<Tstate>
+    {
+        #region Private Members
+        private Queue<Titem> _queue;
+        private object _queueLock;
+        private Tstate _state;
+        #endregion
 
-		#region Public Constructor
-		public PreloadQueue(Tstate state) {
-			_queue = new Queue<Titem>();
-			_queueLock = new object();
-			_state = state;
-		}
-		#endregion
+        #region Public Constructor
+        public PreloadQueue(Tstate state)
+        {
+            _queue = new Queue<Titem>();
+            _queueLock = new object();
+            _state = state;
+        }
+        #endregion
 
-		#region Public Properties
-		public int Count {
-			get {
-				lock (_queueLock) {
-					return _queue.Count;
-				}
-			}
-		}
-		#endregion
+        #region Public Properties
+        public int Count
+        {
+            get
+            {
+                lock (_queueLock)
+                {
+                    return _queue.Count;
+                }
+            }
+        }
+        #endregion
 
-		#region Public Methods
-		public Titem Dequeue() {
-			Titem item = default(Titem);
-			lock (_queueLock) {
-				if (_queue.Count == 0)
-					throw new ArgumentOutOfRangeException("No items in preload queue");
-				item = _queue.Dequeue();				
-			}
-			if (!item.IsLoaded) {
-				lock (item) {
-					if (!item.IsLoaded)
-						item.Load(_state);
-				}
-			}
-			return item;
-		}
+        #region Public Methods
+        public Titem Dequeue()
+        {
+            Titem item = default(Titem);
+            lock (_queueLock)
+            {
+                if (_queue.Count == 0)
+                    throw new ArgumentOutOfRangeException("No items in preload queue");
+                item = _queue.Dequeue();
+            }
+            if (!item.IsLoaded)
+            {
+                lock (item)
+                {
+                    if (!item.IsLoaded)
+                        item.Load(_state);
+                }
+            }
+            return item;
+        }
 
-		public void Enqueue(Titem item) {
-			lock (_queueLock) {
-				_queue.Enqueue(item);
-			}
-		}
+        public void Enqueue(Titem item)
+        {
+            lock (_queueLock)
+            {
+                _queue.Enqueue(item);
+            }
+        }
 
-		public void Enqueue(ICollection<Titem> items) {
-			lock (_queueLock) {
-				foreach (Titem item in items) {
-					_queue.Enqueue(item);
-				}
-			}
-		}
+        public void Enqueue(ICollection<Titem> items)
+        {
+            lock (_queueLock)
+            {
+                foreach (Titem item in items)
+                {
+                    _queue.Enqueue(item);
+                }
+            }
+        }
 
-		public void UnloadTo(IList<Titem> destination) {
-			lock (_queueLock) {
-				while (_queue.Count > 0)
-					destination.Add(_queue.Dequeue());
-			}
-		}
+        public void UnloadTo(IList<Titem> destination)
+        {
+            lock (_queueLock)
+            {
+                while (_queue.Count > 0)
+                    destination.Add(_queue.Dequeue());
+            }
+        }
 
-		public void Preload(int count) {
-			if (count == 0)
-				return;
+        public void Preload(int count)
+        {
+            if (count == 0)
+                return;
 
-			lock (_queueLock) {
-				if (count < 0)
-					count = _queue.Count;
+            lock (_queueLock)
+            {
+                if (count < 0)
+                    count = _queue.Count;
 
-				foreach (Titem item in _queue) {
-					if (count-- <= 0)
-						return;
+                foreach (Titem item in _queue)
+                {
+                    if (count-- <= 0)
+                        return;
 
-					if (!item.IsLoaded)
-						ThreadPool.QueueUserWorkItem(PreloadProc, item);
-				}
-			}
-		}
+                    if (!item.IsLoaded)
+                        ThreadPool.QueueUserWorkItem(PreloadProc, item);
+                }
+            }
+        }
 
-		public void Sort() {
-			lock (_queueLock) {
-				List<Titem> list = new List<Titem>();
-				UnloadTo(list);
-				list.Sort();
-				Enqueue(list);
-			}
-		}
+        public void Sort()
+        {
+            lock (_queueLock)
+            {
+                List<Titem> list = new List<Titem>();
+                UnloadTo(list);
+                list.Sort();
+                Enqueue(list);
+            }
+        }
 
-		public void Sort(IComparer<Titem> comparer) {
-			lock (_queueLock) {
-				List<Titem> list = new List<Titem>();
-				UnloadTo(list);
-				list.Sort(comparer);
-				Enqueue(list);
-			}
-		}
+        public void Sort(IComparer<Titem> comparer)
+        {
+            lock (_queueLock)
+            {
+                List<Titem> list = new List<Titem>();
+                UnloadTo(list);
+                list.Sort(comparer);
+                Enqueue(list);
+            }
+        }
 
-		public void Sort(Comparison<Titem> comparison) {
-			lock (_queueLock) {
-				List<Titem> list = new List<Titem>();
-				UnloadTo(list);
-				list.Sort(comparison);
-				Enqueue(list);
-			}
-		}
+        public void Sort(Comparison<Titem> comparison)
+        {
+            lock (_queueLock)
+            {
+                List<Titem> list = new List<Titem>();
+                UnloadTo(list);
+                list.Sort(comparison);
+                Enqueue(list);
+            }
+        }
 
-		public IEnumerator<Titem> GetEnumerator() {
-			return _queue.GetEnumerator();
-		}
+        public IEnumerator<Titem> GetEnumerator()
+        {
+            return _queue.GetEnumerator();
+        }
 
-		IEnumerator IEnumerable.GetEnumerator() {
-			return _queue.GetEnumerator();
-		}
-		#endregion
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _queue.GetEnumerator();
+        }
+        #endregion
 
-		#region Private Methods
-		private void PreloadProc(object state) {
-			try {
-				Titem item = (Titem)state;
-				if (item.IsLoaded)
-					return;
-				lock (item) {
-					if (item.IsLoaded)
-						return;
-					item.Load(_state);
-				}
-			}
-			catch {
-			}
-		}
-		#endregion
-	}
+        #region Private Methods
+        private void PreloadProc(object state)
+        {
+            try
+            {
+                Titem item = (Titem)state;
+                if (item.IsLoaded)
+                    return;
+                lock (item)
+                {
+                    if (item.IsLoaded)
+                        return;
+                    item.Load(_state);
+                }
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+    }
 }

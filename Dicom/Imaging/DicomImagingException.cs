@@ -20,12 +20,14 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Dicom.Imaging {
-	public class DicomImagingException : Exception {
-		public DicomImagingException(String format, params object[] args) : base(String.Format(format, args)) {
-		}
-	}
+namespace Dicom.Imaging
+{
+    public class DicomImagingException : Exception
+    {
+        public DicomImagingException(String format, params object[] args)
+            : base(String.Format(format, args))
+        {
+        }
+    }
 }

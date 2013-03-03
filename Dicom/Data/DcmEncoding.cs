@@ -6,13 +6,16 @@ using System.Text;
 using System.Linq;
 #endif
 
-namespace Dicom.Data {
-	public static class DcmEncoding {
-		private static Dictionary<string, int> EncodingCodePageMap;
+namespace Dicom.Data
+{
+    public static class DcmEncoding
+    {
+        private static Dictionary<string, int> EncodingCodePageMap;
 
-		static DcmEncoding() {
-			EncodingCodePageMap = new Dictionary<string, int>();
-			EncodingCodePageMap.Add("ISO_IR 100", 28591); // Latin Alphabet No. 1 Unextended
+        static DcmEncoding()
+        {
+            EncodingCodePageMap = new Dictionary<string, int>();
+            EncodingCodePageMap.Add("ISO_IR 100", 28591); // Latin Alphabet No. 1 Unextended
             EncodingCodePageMap.Add("ISO_IR 101", 28592); // Latin Alphabet No. 2 Unextended
             EncodingCodePageMap.Add("ISO_IR 109", 28593); // Latin Alphabet No. 3 Unextended
             EncodingCodePageMap.Add("ISO_IR 110", 28594); // Latin Alphabet No. 4 Unextended
@@ -39,50 +42,54 @@ namespace Dicom.Data {
             EncodingCodePageMap.Add("ISO 2022 IR 87", 50222); // JIS X 0208 (Kanji) Extended
             EncodingCodePageMap.Add("ISO 2022 IR 159", 50222); // JIS X 0212 (Kanji) Extended
             EncodingCodePageMap.Add("ISO 2022 IR 149", 20949); // KS X 1001 (Hangul and Hanja) Extended
-			EncodingCodePageMap.Add("GB18030", 54936); // Chinese (Simplified) Extended
-		}
+            EncodingCodePageMap.Add("GB18030", 54936); // Chinese (Simplified) Extended
+        }
 
-		/// <summary>
-		/// Default charset encoding (ISO 2022 IR 6)
-		/// </summary>
-		public static Encoding Default {
-			get
-			{
+        /// <summary>
+        /// Default charset encoding (ISO 2022 IR 6)
+        /// </summary>
+        public static Encoding Default
+        {
+            get
+            {
 #if SILVERLIGHT
 			    return Encoding.UTF8;
 #else
-			    return Encoding.ASCII;
+                return Encoding.ASCII;
 #endif
-			}
-		}
+            }
+        }
 
-		public static Encoding GetEncodingForSpecificCharacterSet(string encoding) {
+        public static Encoding GetEncodingForSpecificCharacterSet(string encoding)
+        {
 #if SILVERLIGHT
 		    return Default;
 #else
-			int codePage;
-			if (EncodingCodePageMap.TryGetValue(encoding, out codePage))
-				return Encoding.GetEncoding(codePage);
-			return Default;
+            int codePage;
+            if (EncodingCodePageMap.TryGetValue(encoding, out codePage))
+                return Encoding.GetEncoding(codePage);
+            return Default;
 #endif
-		}
+        }
 
-		public static string GetSpecificCharacterSetForEncoding(Encoding encoding) {
+        public static string GetSpecificCharacterSetForEncoding(Encoding encoding)
+        {
 #if SILVERLIGHT
 		    return EncodingCodePageMap.Single(kv => kv.Value.Equals(65001)).Key;
 #else
-			if (encoding == null)
-				encoding = Encoding.ASCII;
+            if (encoding == null)
+                encoding = Encoding.ASCII;
 
-			foreach (KeyValuePair<string, int> codePage in EncodingCodePageMap) {
-				if (codePage.Value == encoding.CodePage)
-					return codePage.Key;
-			}
+            foreach (KeyValuePair<string, int> codePage in EncodingCodePageMap)
+            {
+                if (codePage.Value == encoding.CodePage)
+                    return codePage.Key;
+            }
 
-			throw new DicomDataException(
-				String.Format("Unable to find specific character set value for encoding: {0} ({1})", 
-					encoding.EncodingName, encoding.CodePage));
+            throw new DicomDataException(
+                String.Format("Unable to find specific character set value for encoding: {0} ({1})",
+                    encoding.EncodingName, encoding.CodePage));
 #endif
-		}
-	}
+        }
+    }
 }

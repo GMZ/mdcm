@@ -25,33 +25,40 @@ using System.Text;
 
 using NLog;
 
-namespace Dicom.Utility {
-	public class LogWriter : TextWriter {
-		private LogLevel _level;
-		private Logger _log;
+namespace Dicom.Utility
+{
+    public class LogWriter : TextWriter
+    {
+        private LogLevel _level;
+        private Logger _log;
 
-		public LogWriter(LogLevel level, Logger log) {
-			_level = level;
-			_log = log;
-		}
+        public LogWriter(LogLevel level, Logger log)
+        {
+            _level = level;
+            _log = log;
+        }
 
-		public override void Write(string value) {
-			_log.Log(_level, value.TrimEnd('\n'));
-		}
+        public override void Write(string value)
+        {
+            _log.Log(_level, value.TrimEnd('\n'));
+        }
 
-		public override void WriteLine(string value) {
-			_log.Log(_level, value.TrimEnd('\n'));
-		}
+        public override void WriteLine(string value)
+        {
+            _log.Log(_level, value.TrimEnd('\n'));
+        }
 
-		public override Encoding Encoding {
-			get { return Console.Out.Encoding; }
-		}
+        public override Encoding Encoding
+        {
+            get { return Console.Out.Encoding; }
+        }
 
 #if !SILVERLIGHT
-		public static void RedirectConsole(Logger log) {
-			Console.SetOut(new LogWriter(LogLevel.Info, log));
-			Console.SetError(new LogWriter(LogLevel.Error, log));
-		}
+        public static void RedirectConsole(Logger log)
+        {
+            Console.SetOut(new LogWriter(LogLevel.Info, log));
+            Console.SetError(new LogWriter(LogLevel.Error, log));
+        }
 #endif
-	}
+    }
 }

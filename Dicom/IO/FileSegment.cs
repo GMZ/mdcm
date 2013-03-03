@@ -22,110 +22,123 @@
 using System;
 using System.IO;
 
-namespace Dicom.IO {
-	/// <summary>
-	/// File Segment
-	/// </summary>
-	public class FileSegment {
-		#region Private Members
-		private string _fileName;
-		private long _position;
-		private long _length;
-		#endregion
+namespace Dicom.IO
+{
+    /// <summary>
+    /// File Segment
+    /// </summary>
+    public class FileSegment
+    {
+        #region Private Members
+        private string _fileName;
+        private long _position;
+        private long _length;
+        #endregion
 
-		#region Public Constructors
-		/// <summary>
-		/// Initializes a new instance of the <see cref="FileSegment"/> class.
-		/// </summary>
-		/// <param name="fileName">Name of the file.</param>
-		/// <param name="position">The position.</param>
-		/// <param name="length">The length.</param>
-		public FileSegment(string fileName, long position, long length) {
-			FileName = fileName;
-			Position = position;
-			Length = length;
-		}
-		#endregion
+        #region Public Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileSegment"/> class.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="length">The length.</param>
+        public FileSegment(string fileName, long position, long length)
+        {
+            FileName = fileName;
+            Position = position;
+            Length = length;
+        }
+        #endregion
 
-		#region Public Properties
-		/// <summary>
-		/// Gets or sets the name of the file.
-		/// </summary>
-		/// <value>The name of the file.</value>
-		public string FileName {
-			get { return _fileName; }
-			private set { _fileName = value; }
-		}
+        #region Public Properties
+        /// <summary>
+        /// Gets or sets the name of the file.
+        /// </summary>
+        /// <value>The name of the file.</value>
+        public string FileName
+        {
+            get { return _fileName; }
+            private set { _fileName = value; }
+        }
 
-		/// <summary>
-		/// Gets or sets the segment position.
-		/// </summary>
-		/// <value>The segment position.</value>
-		public long Position {
-			get { return _position; }
-			private set { _position = value; }
-		}
+        /// <summary>
+        /// Gets or sets the segment position.
+        /// </summary>
+        /// <value>The segment position.</value>
+        public long Position
+        {
+            get { return _position; }
+            private set { _position = value; }
+        }
 
 
-		/// <summary>
-		/// Gets or sets the segment length.
-		/// </summary>
-		/// <value>The segment length.</value>
-		public long Length {
-			get { return _length; }
-			private set { _length = value; }
-		}
-		#endregion
+        /// <summary>
+        /// Gets or sets the segment length.
+        /// </summary>
+        /// <value>The segment length.</value>
+        public long Length
+        {
+            get { return _length; }
+            private set { _length = value; }
+        }
+        #endregion
 
-		#region Public Methods
-		/// <summary>
-		/// Opens a readonly stream for this segment.
-		/// </summary>
-		/// <returns>FileStream at segment position.</returns>
-		public FileStream OpenStream() {
-			FileStream fs = File.OpenRead(FileName);
-			fs.Seek(Position, SeekOrigin.Begin);
-			return fs;
-		}
+        #region Public Methods
+        /// <summary>
+        /// Opens a readonly stream for this segment.
+        /// </summary>
+        /// <returns>FileStream at segment position.</returns>
+        public FileStream OpenStream()
+        {
+            FileStream fs = File.OpenRead(FileName);
+            fs.Seek(Position, SeekOrigin.Begin);
+            return fs;
+        }
 
-		/// <summary>
-		/// Gets the data for this segment.
-		/// </summary>
-		/// <returns>Byte array of segment data.</returns>
-		public byte[] GetData() {
-			byte[] data = new byte[Length];
-			using (FileStream fs = OpenStream()) {
-				fs.Read(data, 0, (int)Length);
-				fs.Close();
-			}
-			return data;
-		}
+        /// <summary>
+        /// Gets the data for this segment.
+        /// </summary>
+        /// <returns>Byte array of segment data.</returns>
+        public byte[] GetData()
+        {
+            byte[] data = new byte[Length];
+            using (FileStream fs = OpenStream())
+            {
+                fs.Read(data, 0, (int)Length);
+                fs.Close();
+            }
+            return data;
+        }
 
-		/// <summary>
-		/// Copies this segment to a stream.
-		/// </summary>
-		/// <param name="s">Target stream.</param>
-		public void WriteTo(Stream s) {
-			using (FileStream fs = OpenStream()) {
-				byte[] buffer = new byte[65536];
-				int count = (int)Length;
-				while (count > 0) {
-					int size = Math.Min(count, buffer.Length);
-					size = fs.Read(buffer, 0, size);
-					s.Write(buffer, 0, size);
-					count -= size;
-				}
-				fs.Close();
-			}
-		}
+        /// <summary>
+        /// Copies this segment to a stream.
+        /// </summary>
+        /// <param name="s">Target stream.</param>
+        public void WriteTo(Stream s)
+        {
+            using (FileStream fs = OpenStream())
+            {
+                byte[] buffer = new byte[65536];
+                int count = (int)Length;
+                while (count > 0)
+                {
+                    int size = Math.Min(count, buffer.Length);
+                    size = fs.Read(buffer, 0, size);
+                    s.Write(buffer, 0, size);
+                    count -= size;
+                }
+                fs.Close();
+            }
+        }
 
-		/// <summary>
-		/// Gets a ByteBuffer containing this segment's data.
-		/// </summary>
-		/// <returns>ByteBuffer of segment data.</returns>
-		public ByteBuffer GetBuffer() {
-			return new ByteBuffer(GetData());
-		}
-		#endregion
-	}
+        /// <summary>
+        /// Gets a ByteBuffer containing this segment's data.
+        /// </summary>
+        /// <returns>ByteBuffer of segment data.</returns>
+        public ByteBuffer GetBuffer()
+        {
+            return new ByteBuffer(GetData());
+        }
+        #endregion
+    }
 }

@@ -25,9 +25,11 @@ using System.Text;
 
 using Dicom.Data;
 
-namespace Dicom {
-	public static class Implementation {
-		public static DicomUID ClassUID = new DicomUID("1.3.6.1.4.1.30071.6", "Implementation Class UID", DicomUidType.Unknown);
-		public static string Version = "mDCM 0.9";
-	}
+namespace Dicom
+{
+    public static class Implementation
+    {
+        public static DicomUID ClassUID = new DicomUID("1.3.6.1.4.1.30071.6", "Implementation Class UID", DicomUidType.Unknown);
+        public static string Version = "mDCM 0.9";
+    }
 }

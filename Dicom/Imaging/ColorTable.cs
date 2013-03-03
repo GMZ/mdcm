@@ -23,67 +23,83 @@ using System;
 using System.Windows.Media;
 using System.IO;
 
-namespace Dicom.Imaging {
-	public static class ColorTable {
-		public readonly static Color[] Monochrome1 = InitGrayscaleLUT(true);
-		public readonly static Color[] Monochrome2 = InitGrayscaleLUT(false);
+namespace Dicom.Imaging
+{
+    public static class ColorTable
+    {
+        public readonly static Color[] Monochrome1 = InitGrayscaleLUT(true);
+        public readonly static Color[] Monochrome2 = InitGrayscaleLUT(false);
 
-		private static Color[] InitGrayscaleLUT(bool reverse) {
-			Color[] LUT = new Color[256];
-			int i;
-			byte b;
-			if (reverse) {
-				for (i = 0, b = 255; i < 256; i++, b--) {
-					LUT[i] = Color.FromArgb(0xff, b, b, b);
-				}
-			} else {
-				for (i = 0, b = 0; i < 256; i++, b++) {
-					LUT[i] = Color.FromArgb(0xff, b, b, b);
-				}
-			}
-			return LUT;
-		}
+        private static Color[] InitGrayscaleLUT(bool reverse)
+        {
+            Color[] LUT = new Color[256];
+            int i;
+            byte b;
+            if (reverse)
+            {
+                for (i = 0, b = 255; i < 256; i++, b--)
+                {
+                    LUT[i] = Color.FromArgb(0xff, b, b, b);
+                }
+            }
+            else
+            {
+                for (i = 0, b = 0; i < 256; i++, b++)
+                {
+                    LUT[i] = Color.FromArgb(0xff, b, b, b);
+                }
+            }
+            return LUT;
+        }
 
-		public static Color[] Reverse(Color[] lut) {
-			Color[] clone = new Color[lut.Length];
-			Array.Copy(lut, clone, clone.Length);
-			Array.Reverse(clone);
-			return clone;
-		}
+        public static Color[] Reverse(Color[] lut)
+        {
+            Color[] clone = new Color[lut.Length];
+            Array.Copy(lut, clone, clone.Length);
+            Array.Reverse(clone);
+            return clone;
+        }
 
-		public static Color[] LoadLUT(string file) {
-			try {
-				byte[] data = File.ReadAllBytes(file);
-				if (data.Length != (256 * 3))
-					return null;
+        public static Color[] LoadLUT(string file)
+        {
+            try
+            {
+                byte[] data = File.ReadAllBytes(file);
+                if (data.Length != (256 * 3))
+                    return null;
 
-				Color[] LUT = new Color[256];
-				for (int i = 0; i < 256; i++) {
-					LUT[i] = Color.FromArgb(0xff, data[i], data[i + 256], data[i + 512]);
-				}
-				return LUT;
-			} catch {
-				return null;
-			}
-		}
+                Color[] LUT = new Color[256];
+                for (int i = 0; i < 256; i++)
+                {
+                    LUT[i] = Color.FromArgb(0xff, data[i], data[i + 256], data[i + 512]);
+                }
+                return LUT;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-		public static void SaveLUT(string file, Color[] lut) {
-			if (lut.Length != 256) return;
-			FileStream fs = new FileStream(file, FileMode.Create);
-			for (int i = 0; i < 256; i++) fs.WriteByte(lut[i].R);
-			for (int i = 0; i < 256; i++) fs.WriteByte(lut[i].G);
-			for (int i = 0; i < 256; i++) fs.WriteByte(lut[i].B);
-			fs.Close();
-		}
+        public static void SaveLUT(string file, Color[] lut)
+        {
+            if (lut.Length != 256) return;
+            FileStream fs = new FileStream(file, FileMode.Create);
+            for (int i = 0; i < 256; i++) fs.WriteByte(lut[i].R);
+            for (int i = 0; i < 256; i++) fs.WriteByte(lut[i].G);
+            for (int i = 0; i < 256; i++) fs.WriteByte(lut[i].B);
+            fs.Close();
+        }
 
 #if !SILVERLIGHT
-		public static void Apply(System.Drawing.Image image, Color[] lut) {
-			System.Drawing.Imaging.ColorPalette palette = image.Palette;
-			for (int i = 0; i < palette.Entries.Length; i++)
-				palette.Entries[i] = System.Drawing.Color.FromArgb(lut[i].A, lut[i].R, lut[i].G, lut[i].B);
-			image.Palette = palette;
-		}
+        public static void Apply(System.Drawing.Image image, Color[] lut)
+        {
+            System.Drawing.Imaging.ColorPalette palette = image.Palette;
+            for (int i = 0; i < palette.Entries.Length; i++)
+                palette.Entries[i] = System.Drawing.Color.FromArgb(lut[i].A, lut[i].R, lut[i].G, lut[i].B);
+            image.Palette = palette;
+        }
 #endif
-	}
+    }
 }
 

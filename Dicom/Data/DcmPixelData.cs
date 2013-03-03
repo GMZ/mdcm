@@ -22,13 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-
 using Dicom.IO;
-using Dicom.Utility;
 
 #if SILVERLIGHT
 using MD5 = System.Security.Cryptography.MD5Managed;
@@ -367,11 +363,11 @@ namespace Dicom.Data
         {
             int typeSize;
             if (default(T) is uint)
-                typeSize = sizeof (uint);
+                typeSize = sizeof(uint);
             else if (default(T) is ushort)
-                typeSize = sizeof (ushort);
+                typeSize = sizeof(ushort);
             else if (default(T) is byte)
-                typeSize = sizeof (byte);
+                typeSize = sizeof(byte);
             else
                 throw new InvalidOperationException(String.Format("'{0}' is not unsigned value type", typeof(T).Name));
 
@@ -618,7 +614,7 @@ namespace Dicom.Data
                 return fragments;
             }
 
-            GUESS_FRAME_OFFSET:
+        GUESS_FRAME_OFFSET:
             if (sequence.Fragments.Count > 0)
             {
                 int fragmentSize = sequence.Fragments[0].Length;
@@ -923,7 +919,7 @@ namespace Dicom.Data
                 return buffer;
             }
         }
-        
+
         #endregion
     }
 }

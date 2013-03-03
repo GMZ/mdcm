@@ -20,51 +20,58 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml.Serialization;
 
-namespace Dicom.Utility {
-	[Serializable]
-	public class XmlSerializable<T> {
-		public XmlSerializable() {
-		}
+namespace Dicom.Utility
+{
+    [Serializable]
+    public class XmlSerializable<T>
+    {
+        public void Save(string filename)
+        {
+            var serializer = new XmlSerializer(GetType());
+            using (var fs = File.Create(filename))
+            {
+                serializer.Serialize(fs, this);
+                fs.Flush();
+            }
+        }
 
-		public void Save(string filename) {
-			XmlSerializer serializer = new XmlSerializer(this.GetType());
-			using (FileStream fs = File.Create(filename)) {
-				serializer.Serialize(fs, this);
-				fs.Flush();
-			}
-		}
+        public string SaveToString()
+        {
+            var serializer = new XmlSerializer(GetType());
+            using (var sw = new StringWriter())
+            {
+                serializer.Serialize(sw, this);
+                return sw.ToString();
+            }
+        }
 
-		public string SaveToString() {
-			XmlSerializer serializer = new XmlSerializer(this.GetType());
-			using (StringWriter sw = new StringWriter()) {
-				serializer.Serialize(sw, this);
-				return sw.ToString();
-			}
-		}
+        public static T Load(string filename)
+        {
+            if (!File.Exists(filename))
+            {
+                return default(T);
+            }
+            var serializer = new XmlSerializer(typeof(T));
+            using (var fs = File.OpenRead(filename))
+            {
+                return (T)serializer.Deserialize(fs);
+            }
+        }
 
-		public static T Load(string filename) {
-			if (!File.Exists(filename)) {
-				return default(T);
-			}
-			XmlSerializer serializer = new XmlSerializer(typeof(T));
-			using (FileStream fs = File.OpenRead(filename)) {
-				return (T)serializer.Deserialize(fs);
-			}
-		}
-
-		public static T LoadFromString(string data) {
-			if (String.IsNullOrEmpty(data)) {
-				return default(T);
-			}
-			XmlSerializer serializer = new XmlSerializer(typeof(T));
-			using (StringReader sr = new StringReader(data)) {
-				return (T)serializer.Deserialize(sr);
-			}
-		}
-	}
+        public static T LoadFromString(string data)
+        {
+            if (String.IsNullOrEmpty(data))
+            {
+                return default(T);
+            }
+            var serializer = new XmlSerializer(typeof(T));
+            using (var sr = new StringReader(data))
+            {
+                return (T)serializer.Deserialize(sr);
+            }
+        }
+    }
 }

@@ -20,79 +20,90 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Dicom.Data {
-	public enum DicomFieldDefault {
-		None,
-		Null,
-		Default,
-		MinValue,
-		MaxValue,
-		DateTimeNow,
-		StringEmpty,
-		DBNull,
-		EmptyArray
-	}
+namespace Dicom.Data
+{
+    public enum DicomFieldDefault
+    {
+        None,
+        Null,
+        Default,
+        MinValue,
+        MaxValue,
+        DateTimeNow,
+        StringEmpty,
+        DBNull,
+        EmptyArray
+    }
 
-	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-	public sealed class DicomFieldAttribute : Attribute {
-		private DicomTag _tag;
-		private DicomFieldDefault _default;
-		private bool _defltOnZL;
-		private bool _createEmpty;
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public sealed class DicomFieldAttribute : Attribute
+    {
+        private DicomTag _tag;
+        private DicomFieldDefault _default;
+        private bool _defltOnZL;
+        private bool _createEmpty;
 
-		public DicomFieldAttribute(uint tag) {
-			_tag = new DicomTag(tag);
-			_default = DicomFieldDefault.None;
-			_defltOnZL = false;
-			_createEmpty = false;
-		}
+        public DicomFieldAttribute(uint tag)
+        {
+            _tag = new DicomTag(tag);
+            _default = DicomFieldDefault.None;
+            _defltOnZL = false;
+            _createEmpty = false;
+        }
 
-		public DicomFieldAttribute(ushort group, ushort element) {
-			_tag = new DicomTag(group, element);
-			_default = DicomFieldDefault.None;
-			_defltOnZL = false;
-			_createEmpty = false;
-		}
+        public DicomFieldAttribute(ushort group, ushort element)
+        {
+            _tag = new DicomTag(group, element);
+            _default = DicomFieldDefault.None;
+            _defltOnZL = false;
+            _createEmpty = false;
+        }
 
-		public DicomTag Tag {
-			get { return _tag; }
-		}
+        public DicomTag Tag
+        {
+            get { return _tag; }
+        }
 
-		public DicomFieldDefault DefaultValue {
-			get { return _default; }
-			set { _default = value; }
-		}
+        public DicomFieldDefault DefaultValue
+        {
+            get { return _default; }
+            set { _default = value; }
+        }
 
-		public bool UseDefaultForZeroLength {
-			get { return _defltOnZL; }
-			set { _defltOnZL = value; }
-		}
+        public bool UseDefaultForZeroLength
+        {
+            get { return _defltOnZL; }
+            set { _defltOnZL = value; }
+        }
 
-		public bool CreateEmptyElement {
-			get { return _createEmpty; }
-			set { _createEmpty = value; }
-		}
-	}
+        public bool CreateEmptyElement
+        {
+            get { return _createEmpty; }
+            set { _createEmpty = value; }
+        }
+    }
 
-	[AttributeUsage(AttributeTargets.Class)]
-	public sealed class DicomClassAttribute : Attribute {
-		private bool _defltOnZL;
-		private bool _createEmpty;
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class DicomClassAttribute : Attribute
+    {
+        private bool _defltOnZL;
+        private bool _createEmpty;
 
-		public DicomClassAttribute() {
-		}
+        public DicomClassAttribute()
+        {
+        }
 
-		public bool UseDefaultForZeroLength {
-			get { return _defltOnZL; }
-			set { _defltOnZL = value; }
-		}
+        public bool UseDefaultForZeroLength
+        {
+            get { return _defltOnZL; }
+            set { _defltOnZL = value; }
+        }
 
-		public bool CreateEmptyElement {
-			get { return _createEmpty; }
-			set { _createEmpty = value; }
-		}
-	}
+        public bool CreateEmptyElement
+        {
+            get { return _createEmpty; }
+            set { _createEmpty = value; }
+        }
+    }
 }

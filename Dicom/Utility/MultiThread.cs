@@ -26,16 +26,20 @@ using System.Threading;
 using System.Threading.Tasks;
 #endif
 
-namespace Dicom.Utility {
-	public static class MultiThread {
-		public delegate void ProcessDelegate();
+namespace Dicom.Utility
+{
+    public static class MultiThread
+    {
+        public delegate void ProcessDelegate();
 #if !SILVERLIGHT
-		public static void ProcessCallback(IAsyncResult result) {
-			((ProcessDelegate)result.AsyncState).EndInvoke(result);
-		}
+        public static void ProcessCallback(IAsyncResult result)
+        {
+            ((ProcessDelegate)result.AsyncState).EndInvoke(result);
+        }
 #endif
 
-		public static void For(int start, int end, Action<int> action) {
+        public static void For(int start, int end, Action<int> action)
+        {
 #if SILVERLIGHT
 			object oLock = new object();
 			ProcessDelegate process = delegate() {
@@ -62,12 +66,13 @@ namespace Dicom.Utility {
 			}
 			WaitHandle.WaitAll(handles);
 #else
-			Parallel.For(start, end, action);
+            Parallel.For(start, end, action);
 #endif
-			
-		}
 
-		public static void ForEach<T>(IEnumerable<T> enumerable, Action<T> action) {
+        }
+
+        public static void ForEach<T>(IEnumerable<T> enumerable, Action<T> action)
+        {
 #if SILVERLIGHT
 			IEnumerator<T> enumerator = enumerable.GetEnumerator();
 			object oLock = new object();
@@ -99,8 +104,8 @@ namespace Dicom.Utility {
 			}
 			WaitHandle.WaitAll(handles);
 #else
-			Parallel.ForEach(enumerable, action);
+            Parallel.ForEach(enumerable, action);
 #endif
-		}
-	}
+        }
+    }
 }

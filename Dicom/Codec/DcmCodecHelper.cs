@@ -20,47 +20,56 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
-
 using Dicom.Data;
 
-namespace Dicom.Codec {
-	public static class DcmCodecHelper {
-		public static void ChangePlanarConfiguration(byte[] pixelData, int numValues, int bitsAllocated, 
-			int samplesPerPixel, int oldPlanarConfiguration) {
-			int bytesAllocated = bitsAllocated / 8;
-			int numPixels = numValues / samplesPerPixel;
-			if (bytesAllocated == 1) {
-				byte[] buffer = new byte[pixelData.Length];
-				if (oldPlanarConfiguration == 1) {
-					for (int n = 0; n < numPixels; n++) {
-						for (int s = 0; s < samplesPerPixel; s++) {
-							buffer[n * samplesPerPixel + s] = pixelData[n + numPixels * s];
-						}
-					}
-				}
-				else {
-					for (int n = 0; n < numPixels; n++) {
-						for (int s = 0; s < samplesPerPixel; s++) {
-							buffer[n + numPixels * s] = pixelData[n * samplesPerPixel + s];
-						}
-					}
-				}
-				Buffer.BlockCopy(buffer, 0, pixelData, 0, numValues);
-			}
-			else if (bytesAllocated == 2) {
-				throw new DicomCodecException(String.Format("BitsAllocated={0} is not supported!", bitsAllocated));
-			}
-			else
-				throw new DicomCodecException(String.Format("BitsAllocated={0} is not supported!", bitsAllocated));
-		}
+namespace Dicom.Codec
+{
+    public static class DcmCodecHelper
+    {
+        public static void ChangePlanarConfiguration(byte[] pixelData, int numValues, int bitsAllocated,
+            int samplesPerPixel, int oldPlanarConfiguration)
+        {
+            int bytesAllocated = bitsAllocated / 8;
+            int numPixels = numValues / samplesPerPixel;
+            if (bytesAllocated == 1)
+            {
+                byte[] buffer = new byte[pixelData.Length];
+                if (oldPlanarConfiguration == 1)
+                {
+                    for (int n = 0; n < numPixels; n++)
+                    {
+                        for (int s = 0; s < samplesPerPixel; s++)
+                        {
+                            buffer[n * samplesPerPixel + s] = pixelData[n + numPixels * s];
+                        }
+                    }
+                }
+                else
+                {
+                    for (int n = 0; n < numPixels; n++)
+                    {
+                        for (int s = 0; s < samplesPerPixel; s++)
+                        {
+                            buffer[n + numPixels * s] = pixelData[n * samplesPerPixel + s];
+                        }
+                    }
+                }
+                Buffer.BlockCopy(buffer, 0, pixelData, 0, numValues);
+            }
+            else if (bytesAllocated == 2)
+            {
+                throw new DicomCodecException(String.Format("BitsAllocated={0} is not supported!", bitsAllocated));
+            }
+            else
+                throw new DicomCodecException(String.Format("BitsAllocated={0} is not supported!", bitsAllocated));
+        }
 
-		public static void DumpFrameToDisk(DcmDataset data, int frame, string file) {
-			DcmPixelData pixelData = new DcmPixelData(data);
-			byte[] pixels = pixelData.GetFrameDataU8(frame);
-			File.WriteAllBytes(file, pixels);
-		}
-	}
+        public static void DumpFrameToDisk(DcmDataset data, int frame, string file)
+        {
+            DcmPixelData pixelData = new DcmPixelData(data);
+            byte[] pixels = pixelData.GetFrameDataU8(frame);
+            File.WriteAllBytes(file, pixels);
+        }
+    }
 }

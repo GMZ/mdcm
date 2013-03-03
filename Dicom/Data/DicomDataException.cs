@@ -20,12 +20,14 @@
 //    Colby Dillion (colby.dillion@gmail.com)
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Dicom.Data {
-	public class DicomDataException : Exception {
-		public DicomDataException(String s) : base(s) {
-		}
-	}
+namespace Dicom.Data
+{
+    public class DicomDataException : Exception
+    {
+        public DicomDataException(String s)
+            : base(s)
+        {
+        }
+    }
 }
