@@ -28,7 +28,6 @@ namespace Dicom.Network.Client
         #region Private Members
         private readonly DcmFilmBox _filmBox;
         private DicomUID _sopClass;
-        private readonly DicomUID _sopInstance;
         private readonly DcmDataset _dataset;
         #endregion
 
@@ -43,7 +42,7 @@ namespace Dicom.Network.Client
         {
             _filmBox = filmBox;
             _sopClass = sopClass;
-            _sopInstance = sopInstance;
+            SOPInstanceUID = sopInstance;
             _dataset = new DcmDataset(DicomTransferSyntax.ImplicitVRLittleEndian);
         }
 
@@ -58,7 +57,7 @@ namespace Dicom.Network.Client
         {
             _filmBox = filmBox;
             _sopClass = sopClass;
-            _sopInstance = sopInstance;
+            SOPInstanceUID = sopInstance;
             _dataset = dataset;
         }
         #endregion
@@ -77,10 +76,7 @@ namespace Dicom.Network.Client
         }
 
         /// <summary>SOP Instance UID</summary>
-        public DicomUID SOPInstanceUID
-        {
-            get { return _sopInstance; }
-        }
+        public DicomUID SOPInstanceUID { get; private set; }
 
         /// <summary>Basic Film Session data</summary>
         public DcmDataset Dataset

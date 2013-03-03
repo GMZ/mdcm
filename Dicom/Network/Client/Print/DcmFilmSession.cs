@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dicom.Data;
 
 namespace Dicom.Network.Client
@@ -209,23 +210,25 @@ namespace Dicom.Network.Client
 
         public DcmFilmBox FindFilmBox(DicomUID instUid)
         {
-            foreach (DcmFilmBox box in _boxes)
-            {
-                if (box.SOPInstanceUID.UID == instUid.UID)
-                    return box;
-            }
-            return null;
+            //foreach (DcmFilmBox box in _boxes)
+            //{
+            //    if (box.SOPInstanceUID.UID == instUid.UID)
+            //        return box;
+            //}
+            //return null;
+            return _boxes.FirstOrDefault(box => box.SOPInstanceUID.UID == instUid.UID);
         }
 
         public DcmImageBox FindImageBox(DicomUID instUid)
         {
-            foreach (DcmFilmBox filmBox in _boxes)
-            {
-                DcmImageBox imageBox = filmBox.FindImageBox(instUid);
-                if (imageBox != null)
-                    return imageBox;
-            }
-            return null;
+            //foreach (DcmFilmBox filmBox in _boxes)
+            //{
+            //    DcmImageBox imageBox = filmBox.FindImageBox(instUid);
+            //    if (imageBox != null)
+            //        return imageBox;
+            //}
+            //return null;
+            return _boxes.Select(filmBox => filmBox.FindImageBox(instUid)).FirstOrDefault(imageBox => imageBox != null);
         }
 
         public DcmFilmSession Clone()

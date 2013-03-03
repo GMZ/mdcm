@@ -373,38 +373,25 @@ namespace Dicom.Network.Client
                 parts = parts[1].Split(',');
                 if (parts.Length == 2)
                 {
-                    try
-                    {
-                        int col = int.Parse(parts[0]);
-                        int row = int.Parse(parts[1]);
-                        for (int r = 0; r < row; r++)
-                            for (int c = 0; c < col; c++)
-                                CreateImageBox();
-                        return true;
-                    }
-                    catch
-                    {
-                    }
+                    var col = int.Parse(parts[0]);
+                    var row = int.Parse(parts[1]);
+                    for (var r = 0; r < row; r++)
+                        for (var c = 0; c < col; c++)
+                            CreateImageBox();
+                    return true;
                 }
 
             }
 
             if ((parts[0] == "ROW" || parts[0] == "COL") && parts.Length == 2)
             {
-                try
+                parts = parts[1].Split(',');
+                foreach (var count in parts.Select(int.Parse))
                 {
-                    parts = parts[1].Split(',');
-                    foreach (string part in parts)
-                    {
-                        int count = int.Parse(part);
-                        for (int i = 0; i < count; i++)
-                            CreateImageBox();
-                    }
-                    return true;
+                    for (var i = 0; i < count; i++)
+                        CreateImageBox();
                 }
-                catch
-                {
-                }
+                return true;
             }
 
             Debug.Log.Error("Unsupported image display format \"{0}\"", format);
